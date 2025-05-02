@@ -9,7 +9,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "mysql2": "^3.14.1",
     "react": ""
   },
   "devDependencies": {
