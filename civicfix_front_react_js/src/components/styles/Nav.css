@@ -1,0 +1,40 @@
+#container {
+  box-sizing: border-box;
+
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+
+  ul {
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 25px;
+    margin: 0;
+    padding: 0;
+    border-radius: 100px;
+    padding: 12px 22px;
+    z-index: 9999;
+
+    background-color: rgba(44, 44, 44, 0.555);
+    backdrop-filter: blur(20px);
+    box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+
+    li {
+      margin: 0;
+      height: 48px;
+    }
+  }
+}
+
+@media (width >= 500px) {
+  #container {
+    display: none;
+  }
+}
