@@ -6,13 +6,13 @@ export default function Nav() {
     <div id="container">
       <ul>
         <li>
-          <MapPin color="rgb(151, 151, 151)" size={48}></MapPin>
+          <MapPin color="rgb(151, 151, 151)" size={40}></MapPin>
         </li>
         <li>
-          <ArrowUpWideNarrow color="rgb(151, 151, 151)" size={48}></ArrowUpWideNarrow>
+          <ArrowUpWideNarrow color="rgb(151, 151, 151)" size={40}></ArrowUpWideNarrow>
         </li>
         <li>
-          <CircleUser color="rgb(151, 151, 151)" size={48}></CircleUser>
+          <CircleUser color="rgb(151, 151, 151)" size={40}></CircleUser>
         </li>
       </ul>
     </div>

@@ -28,12 +28,12 @@
 
     li {
       margin: 0;
-      height: 48px;
+      height: 40px;
     }
   }
 }
 
-@media (width >= 500px) {
+@media (width >= 600px) {
   #container {
     display: none;
   }
