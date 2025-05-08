@@ -1,18 +1,21 @@
 {
-  "name": "civicfix-front-js",
-  "private": true,
-  "version": "0.0.0",
+  "name": "civicfix_back_node",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "react": ""
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.1"
   },
   "devDependencies": {
-    "@eslint/js": "^9.21.0",
-    "eslint": "^9.21.0"
+    "nodemon": "^3.1.10"
   }
 }

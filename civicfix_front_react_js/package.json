@@ -13,6 +13,7 @@
   "dependencies": {
     "@tanstack/react-router": "^1.119.0",
     "bootstrap": "^5.3.5",
+    "lucide-react": "^0.506.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-script": "^2.0.5",
