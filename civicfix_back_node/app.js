@@ -22,19 +22,59 @@ const pool = createPool({
   queueLimit: 0,
 });
 
-app.use(json());
-// app.use(express.static(join(__dirname, "../civicfix_front_react_js/dist")));
+const REQ_ISSUE_FIELDS = ["type", "title", "description", "lat", "lon"];
 
-app.use(expressStatic(join(__dirname, "../civicfix_front_react_js/dist")));
+app.use(json());
+// app.use(expressStatic(join(__dirname, "../civicfix_front_react_js/dist")));
 
 //TODO auth middleware
 
-app.get("/issues", async (req, res) => {
+app.get("/user/issues", async (req, res) => {
   const [issues] = await pool.query("SELECT id, title, type, status FROM issues WHERE user = ?;", [
     req.session.userid,
   ]);
   res.status(200).json(issues);
 });
+
+app.post("/issue", async (req, res) => {
+  const { body } = req;
+  const values = [];
+
+  const [error] = validateFields(body);
+  if (error) return res.status(400).send(error);
+
+  for (let i = 0; i < 3; i++) {
+    values.push(body[REQ_ISSUE_FIELDS[i]]);
+  }
+  values.push(`${body.lat},${body.lon}`);
+
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    await connection.execute(
+      "INSERT INTO issues (type, title, description, location) VALUES (?, ?, ?, ?);",
+      values
+    );
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+
+    console.error("Error creating issue", error);
+    res.status(500).json({ message: "Error creating issue", error });
+  } finally {
+    connection.release();
+  }
+});
+
+function validateFields(body) {
+  for (const field of REQ_ISSUE_FIELDS) {
+    if (!body[field]) {
+      return [`Field ${field} is required`];
+    }
+  }
+
+  return [];
+}
 
 app.get("/location-data", async (req, res) => {
   try {
