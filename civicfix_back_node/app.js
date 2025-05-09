@@ -36,6 +36,44 @@ app.get("/user/issues", async (req, res) => {
   res.status(200).json(issues);
 });
 
+app.put("/issue/:id", async (req, res) => {
+  const { body } = req;
+  const { id: issueId } = req.params;
+  const values = [];
+
+  const [error] = validateFields(body);
+  if (error) return res.status(400).send(error);
+
+  for (let i = 0; i < 3; i++) {
+    values.push(body[REQ_ISSUE_FIELDS[i]]);
+  }
+  values.push(`${body.lat},${body.lon}`);
+
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const [result] = await connection.execute(
+      `UPDATE issues
+         SET type        = ?,
+             title       = ?,
+             description = ?,
+             location    = ?
+       WHERE id = ?`,
+      [...values, req.params.id]
+    );
+    await connection.commit();
+
+    res.status(200).json({ message: "Issue updated", issueId: result.insertId });
+  } catch (error) {
+    await connection.rollback();
+
+    console.error(`Error updating issue with id: ${issueId}`, error);
+    res.status(500).json({ message: `Error updating issue with id: ${issueId}`, error });
+  } finally {
+    connection.release();
+  }
+});
+
 app.post("/issue", async (req, res) => {
   const { body } = req;
   const values = [];
@@ -51,14 +89,15 @@ app.post("/issue", async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
-    await connection.execute(
+    const [result] = await connection.execute(
       "INSERT INTO issues (type, title, description, location) VALUES (?, ?, ?, ?);",
       values
     );
     await connection.commit();
+
+    res.status(200).json({ message: "Issue created", issueId: result.insertId });
   } catch (error) {
     await connection.rollback();
-
     console.error("Error creating issue", error);
     res.status(500).json({ message: "Error creating issue", error });
   } finally {
@@ -66,6 +105,12 @@ app.post("/issue", async (req, res) => {
   }
 });
 
+/**
+ * Validate that all required issue fields are present in the given body.
+ *
+ * @param {object} body - Request body containing issue data.
+ * @returns {string[]} - Error message if a required field is missing.
+ */
 function validateFields(body) {
   for (const field of REQ_ISSUE_FIELDS) {
     if (!body[field]) {
