@@ -6,11 +6,10 @@ import {
     createRoute,
     createRootRoute
 } from '@tanstack/react-router';
-import './index.css';
 import App from './App.jsx';
-import HomePage from './HomePage.jsx';
-import LoginPage from './Login.jsx';
-import IndexPage from './IndexPage.jsx';
+import MainPage from './pages/MainPage.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import IndexPage from './pages/IndexPage.jsx';
 
 const rootRoute = createRootRoute({
   component: App
@@ -28,14 +27,14 @@ const loginRoute = createRoute({
   component: LoginPage
 });
 
-const homeRoute = createRoute({
+const mainRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: 'home',
-  component: HomePage
+  path: 'main',
+  component: MainPage
 });
 
 const router = createRouter({
-  routeTree: rootRoute.addChildren([indexRoute, loginRoute, homeRoute])
+  routeTree: rootRoute.addChildren([indexRoute, loginRoute, mainRoute])
 });
 
 const root = createRoot(document.getElementById('root'));
