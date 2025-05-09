@@ -148,5 +148,5 @@ app.get("/location-data", async (req, res) => {
 });
 
 app.listen(process.env.PORT, () => {
-  console.log(`The Prime Cut is listening on ${process.env.PORT}!`);
+  console.log(`CivicFix is listening on ${process.env.PORT}!`);
 });
