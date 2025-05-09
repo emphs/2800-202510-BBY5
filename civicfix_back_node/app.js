@@ -38,18 +38,13 @@ app.get("/user/issues", async (req, res) => {
 
 app.put("/issue/:id", async (req, res) => {
   const { body } = req;
-  const { id: issueId } = req.params;
-  const values = [];
+  const issueId = req.params.id;
 
-  const [error] = validateFields(body);
+  const [error, values] = validateFields(body);
   if (error) return res.status(400).send(error);
 
-  for (let i = 0; i < 3; i++) {
-    values.push(body[REQ_ISSUE_FIELDS[i]]);
-  }
-  values.push(`${body.lat},${body.lon}`);
-
   const connection = await pool.getConnection();
+
   try {
     await connection.beginTransaction();
     const [result] = await connection.execute(
@@ -57,11 +52,15 @@ app.put("/issue/:id", async (req, res) => {
          SET type        = ?,
              title       = ?,
              description = ?,
-             location    = ?
+             location    = POINT(?, ?)
        WHERE id = ?`,
       [...values, req.params.id]
     );
     await connection.commit();
+
+    if (result.affectedRows == 0) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
 
     res.status(200).json({ message: "Issue updated", issueId: result.insertId });
   } catch (error) {
@@ -76,21 +75,16 @@ app.put("/issue/:id", async (req, res) => {
 
 app.post("/issue", async (req, res) => {
   const { body } = req;
-  const values = [];
 
-  const [error] = validateFields(body);
+  const [error, values] = validateFields(body);
   if (error) return res.status(400).send(error);
 
-  for (let i = 0; i < 3; i++) {
-    values.push(body[REQ_ISSUE_FIELDS[i]]);
-  }
-  values.push(`${body.lat},${body.lon}`);
-
   const connection = await pool.getConnection();
+
   try {
     await connection.beginTransaction();
     const [result] = await connection.execute(
-      "INSERT INTO issues (type, title, description, location) VALUES (?, ?, ?, ?);",
+      "INSERT INTO issues (type, title, description, location) VALUES (?, ?, ?, POINT(?, ?));",
       values
     );
     await connection.commit();
@@ -106,19 +100,24 @@ app.post("/issue", async (req, res) => {
 });
 
 /**
- * Validate that all required issue fields are present in the given body.
+ * Validates that all required fields are present in the request body.
  *
- * @param {object} body - Request body containing issue data.
- * @returns {string[]} - Error message if a required field is missing.
+ * @param {Object} body - The request body containing fields to validate.
+ * @returns {[string|null, Array]} - Returns an error message and empty array if a required field is missing,
+ *                                   otherwise returns null and an array of field values.
  */
 function validateFields(body) {
+  const values = [];
+
   for (const field of REQ_ISSUE_FIELDS) {
     if (!body[field]) {
-      return [`Field ${field} is required`];
+      return [`Field ${field} is required`, []];
     }
+
+    values.push(body[field]);
   }
 
-  return [];
+  return [null, values];
 }
 
 app.get("/location-data", async (req, res) => {
