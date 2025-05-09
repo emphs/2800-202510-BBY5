@@ -1,11 +1,9 @@
 import express, { json, static as expressStatic } from "express";
 import { createPool } from "mysql2/promise";
 import { readFileSync } from "fs";
-import dotenv from "dotenv";
+import "dotenv/config";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-
-dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -29,11 +27,11 @@ app.get("/location-data", async (req, res) => {
         temp_c: temp,
         condition: { text: weatherDesc },
       },
-    } = JSON.parse(
+    } = await (
       await fetch(
-        `http://api.weatherapi.com/v1/current.json?key${process.env.WEATHER_API_KEY}&q=${lat},${lon}`
+        `http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHERAPI_API_KEY}&q=${lat},${lon}`
       )
-    );
+    ).json();
 
     res.status(200).json({
       cityName,
