@@ -1,5 +1,6 @@
 import express, { json, static as expressStatic } from "express";
 import { Pool } from "pg";
+import dotenv from "dotenv";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import session from "express-session";
@@ -112,8 +113,11 @@ app.get("/location-data", async (req, res) => {
         temp_c: temp,
         condition: { text: weatherDesc },
       },
+    } = JSON.parse(
       await fetch(
+        `http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHER_API_KEY}&q=${lat},${lon}`
       )
+    );
 
     res.status(200).json({ cityName, temp, weatherDesc });
   } catch (error) {

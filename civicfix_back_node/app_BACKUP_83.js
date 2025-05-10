@@ -1,14 +1,20 @@
 import express, { json, static as expressStatic } from "express";
+<<<<<<< HEAD
 import { Pool } from "pg";
+import dotenv from "dotenv";
 import { join, dirname, resolve } from "path";
+=======
+import { createPool } from "mysql2/promise";
+import { readFileSync } from "fs";
+import "dotenv/config";
+import { join, dirname } from "path";
+>>>>>>> af240e49a0addae79c45d25cda9f08689cb68ac5
 import { fileURLToPath } from "url";
 import session from "express-session";
 import bcrypt from "bcrypt";
 import signupRouter from "./api/signup.js";
 import loginRouter from "./api/login.js";
 import logoutRouter from "./api/logout.js";
-
-dotenv.config();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -112,8 +118,15 @@ app.get("/location-data", async (req, res) => {
         temp_c: temp,
         condition: { text: weatherDesc },
       },
+    } = await (
       await fetch(
+<<<<<<< HEAD
+        `http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHER_API_KEY}&q=${lat},${lon}`
+=======
+        `http://api.weatherapi.com/v1/current.json?key=${process.env.WEATHERAPI_API_KEY}&q=${lat},${lon}`
+>>>>>>> af240e49a0addae79c45d25cda9f08689cb68ac5
       )
+    ).json();
 
     res.status(200).json({ cityName, temp, weatherDesc });
   } catch (error) {
