@@ -7,6 +7,8 @@ import bcrypt from "bcrypt";
 import signupRouter from "./api/signup.js";
 import loginRouter from "./api/login.js";
 import logoutRouter from "./api/logout.js";
+import fetch from "node-fetch";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -106,14 +108,16 @@ app.get("/location-data", async (req, res) => {
   try {
     const { lat, lon } = req.query;
 
+    const response = await fetch(`https://api.weatherapi.com/v1/current.json?key=${process.env.WEATHER_API_KEY}&q=${lat},${lon}`);
+    const data = await response.json();
+
     const {
       location: { name: cityName },
       current: {
         temp_c: temp,
         condition: { text: weatherDesc },
       },
-      await fetch(
-      )
+    } = data;
 
     res.status(200).json({ cityName, temp, weatherDesc });
   } catch (error) {
