@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "CivixFix - Gen Description",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
