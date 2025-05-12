@@ -11,11 +11,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.6",
     "bootstrap": "^5.3.5",
+    "leaflet": "^1.9.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-leaflet": "^5.0.0",
     "react-script": "^2.0.5",
-    "tailwindcss": "^4.1.4",
+    "styled-components": "^6.1.18",
+    "tailwindcss": "^4.1.6",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
