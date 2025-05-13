@@ -1,0 +1,22 @@
+meta {
+  name: Issue
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/issue
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "type": "Road & Traffic",
+    "title": "Tree fallen on road",
+    "description": "test",
+    "creator_id": 1,
+    "lat": 49.303373,
+    "lon": -123.145083
+  }
+}

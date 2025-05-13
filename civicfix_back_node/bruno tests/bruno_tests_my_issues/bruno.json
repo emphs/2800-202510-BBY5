@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "CivicFix - My Issues",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
