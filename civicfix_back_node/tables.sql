@@ -8,6 +8,7 @@ CREATE TABLE users (
 
 CREATE TABLE issues (
     id INT NOT NULL AUTO_INCREMENT,
+    status ENUM('Not Started', 'In Progress', 'Resolved') NOT NULL DEFAULT 'Not Started',
     type ENUM('Road & Traffic', 'Lighting & Utilities', 'Sanitation & Waste', 'Public Safety & Security', 'Water & Sewage', 'Environment & Green Spaces', 'Noise & Nuisance', 'Animal & Wildlife', 'Signage & Street Furniture') NOT NULL,
     title VARCHAR(255) NOT NULL,
     description VARCHAR(500) NOT NULL,
