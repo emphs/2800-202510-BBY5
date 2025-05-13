@@ -22,7 +22,7 @@ const pool = createPool({
   queueLimit: 0,
 });
 
-const REQ_ISSUE_FIELDS = ["type", "title", "description", "lat", "lon"];
+const REQ_ISSUE_FIELDS = ["type", "title", "description", "creator_id", "lat", "lon"];
 
 app.use(json());
 // app.use(expressStatic(join(__dirname, "../civicfix_front_react_js/dist")));
@@ -30,6 +30,7 @@ app.use(json());
 //TODO auth middleware
 
 app.get("/user/issues", async (req, res) => {
+  //not sure where we will be storing user id yet
   const [issues] = await pool.query("SELECT id, title, type, status FROM issues WHERE user = ?;", [
     req.session.userid,
   ]);
@@ -52,7 +53,8 @@ app.put("/issue/:id", async (req, res) => {
          SET type        = ?,
              title       = ?,
              description = ?,
-             location    = POINT(?, ?)
+             creator_id  = ?,
+             location    = ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326)
        WHERE id = ?`,
       [...values, req.params.id]
     );
@@ -84,7 +86,11 @@ app.post("/issue", async (req, res) => {
   try {
     await connection.beginTransaction();
     const [result] = await connection.execute(
-      "INSERT INTO issues (type, title, description, location) VALUES (?, ?, ?, POINT(?, ?));",
+      `
+      INSERT INTO issues (type, title, description, creator_id, location) 
+      VALUES (?, ?, ?, ?, ST_GeomFromText(
+        CONCAT('POINT(', ?, ' ', ?, ')'), 4326));
+    `,
       values
     );
     await connection.commit();
