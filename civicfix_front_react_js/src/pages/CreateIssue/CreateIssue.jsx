@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import "./CreateIssue.css";
+import { Sparkles } from "lucide-react";
 
 export default function CreateIssue() {
   const [description, setDescription] = useState("");
@@ -17,7 +18,9 @@ export default function CreateIssue() {
 
   return (
     <div id="container">
-      <button onClick={getDescription}>Generate Description</button>
+      <button onClick={getDescription}>
+        Generate Description <Sparkles size={20} />
+      </button>
       <input type="text" ref={titleRef} placeholder="Issue Title" />
       <textarea
         type="text"
