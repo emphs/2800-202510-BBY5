@@ -139,9 +139,9 @@ app.get("/issues/gen-description", async (req, res) => {
 
     const { text: description } = await ai.models.generateContent({
       model: "gemini-2.5-flash-preview-04-17",
-      contents: `In our local community issue reporting app, CivicFix, the user has entered a title for an issue they wish to report. Generate a 2-3 sentence description for this issue based on the provided issue title and issue location.
-        \nIssue title: ${title}
-        \nIssue location: ${location}`,
+      contents: `In our local community issue reporting app, CivicFix, the user has entered a title for an issue they wish to report. Generate a 2-3 sentence description for this issue based on the provided issue title. Return absolutely nothing but the description as this will be served to the user.
+        \nIssue title: ${title}`,
+      // \nIssue location: ${location}`,
     });
 
     console.log("Generated description: ", description);
