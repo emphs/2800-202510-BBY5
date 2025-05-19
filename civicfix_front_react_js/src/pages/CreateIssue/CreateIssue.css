@@ -1,0 +1,45 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+#container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  width: 100vw;
+
+  gap: 10px;
+}
+
+button {
+  background-color: rgb(51, 51, 51);
+  padding: 12px 15px;
+  color: white;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+
+input,
+textarea {
+  background-color: rgb(245, 245, 245);
+  border-radius: 12px;
+  padding: 15px;
+  width: 500px;
+}
+
+textarea {
+  height: 200px;
+}
