@@ -1,16 +1,8 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import MainMap from "./MainMap.jsx";
-import { Outlet, Link } from "@tanstack/react-router";
+import { RouterProvider } from '@tanstack/react-router';
+import { router } from './router';
 
 function App() {
-  return (
-    <>
-      <Outlet />
-    </>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
