@@ -11,7 +11,7 @@ function HomePage() {
         fetch('/api/me', { credentials: 'include' })
             .then(res => res.ok ? res.json() : null)
             .then(data => {
-                if (data && data.email) setUserName(data.username); // or data.username
+                if (data && data.email) setUserName(data.username); 
             });
     }, []);
     
@@ -31,6 +31,15 @@ function HomePage() {
                     <div className="container" style={{ paddingTop: '70px' }}>
                         <h1>Welcome to the HomePage!</h1>
                         <p>This is the homepage of our website.</p>
+                        <button
+                            className="btn btn-outline-danger mt-3"
+                            onClick={async () => {
+                                await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+                                window.location.href = '/';
+                            }}
+                        >
+                            Log Out
+                        </button>
                     </div>
                 </div>
                 <Footer />

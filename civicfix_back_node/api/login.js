@@ -7,8 +7,6 @@ console.log("login.js loaded");
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-    console.log("/api/login route hit");
-    console.log("Login request body:", req.body);
     const { email, password } = req.body;
 
     if (!req.pgPool) {

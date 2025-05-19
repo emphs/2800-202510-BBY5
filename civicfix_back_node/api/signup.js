@@ -16,11 +16,16 @@ router.post("/", async (req, res) => {
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Use the shared pool from req.pgPool
-        await req.pgPool.query(
-            "INSERT INTO users (username, email, password, user_type) VALUES ($1, $2, $3, $4)",
+        const result = await req.pgPool.query(
+            "INSERT INTO users (username, email, password, user_type) VALUES ($1, $2, $3, $4) RETURNING id, username, email, user_type",
             [username, email, hashedPassword, 'user']
         );
+        const user = result.rows[0];
+
+        req.session.userId = user.id;
+        req.session.userType = user.user_type;
+        req.session.email = user.email;
+        req.session.username = user.username;
 
         res.status(201).json({ message: "User created successfully" });
     } catch (err) {

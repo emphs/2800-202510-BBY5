@@ -24,7 +24,7 @@ function SignupPage() {
 
 			if (response.ok) {
 				alert('Signup successful!');
-				navigate({ to: '/main' });
+				navigate({ to: '/home' });
 			} else {
 				alert(data.message || 'Signup failed');
 			}
