@@ -9,7 +9,7 @@ export default function CreateIssue() {
 
   async function getDescription() {
     const response = await fetch(
-      `/issues/gen-description?title=${encodeURIComponent(titleRef.current.value)}`
+      `/api/issues/gen-description?title=${encodeURIComponent(titleRef.current.value)}`
     );
     console.log("response", response);
 
