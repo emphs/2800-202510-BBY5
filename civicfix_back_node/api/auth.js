@@ -5,19 +5,21 @@ import pool from "../db.js";
 
 const router = express.Router();
 
-function isAuthenticated() {}
-
-function requireAdmin(req, res, next) {
-  if (!req.session || req.session.userType !== "admin") {
-    return res.status(403).json({ message: "Unauthorized: Admins only" });
+function isAuthenticated(req, res, next) {
+  if (!req.session || !req.session.userId) {
+    return res.status(401).json({ message: "Unauthorized: Must be logged in" });
   }
   next();
 }
 
-router.get("/authenticated", (req, res) => {
-  if (!req.session || !req.session.userId) {
-    return res.status(401).json({ message: "Not logged in" });
+function requireAdmin(req, res, next) {
+  if (!req.session || req.session.userType !== "admin") {
+    return res.status(403).json({ message: "Forbidden: Admins only" });
   }
+  next();
+}
+
+router.get("/authenticated", isAuthenticated, (req, res) => {
   res.json({
     userId: req.session.userId,
     userType: req.session.userType,
@@ -26,10 +28,7 @@ router.get("/authenticated", (req, res) => {
   });
 });
 
-router.get("/authorized", (req, res) => {
-  if (!req.session || !req.session.userId) {
-    return;
-  }
+router.get("/authorized", requireAdmin, (req, res) => {
   res.json({ authorized: req.session.userType === "admin", userType: req.session.userType });
 });
 

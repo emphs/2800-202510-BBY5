@@ -3,12 +3,14 @@
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import pool from "../db.js";
-import { requireAdmin } from "./auth.js";
+import { requireAdmin, isAuthenticated } from "./auth.js";
 
 const router = express.Router();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const REQ_ISSUE_FIELDS = ["type", "title", "description", "creator_id", "lat", "lon"];
+
+router.use(isAuthenticated);
 
 function validateFields(body) {
   const values = [];
@@ -50,11 +52,8 @@ router.get("/gen-description", async (req, res, next) => {
 
 router.get("/user", async (req, res, next) => {
   try {
-    if (!req.session || !req.session.userId) {
-      return res.status(401).json({ message: "Not logged in" });
-    }
     const [issues] = await pool.query(
-      "SELECT id, title, type, status FROM issues WHERE user = ?;",
+      "SELECT id, title, type, status FROM issues WHERE creator_id = ?;",
       [req.session.userId]
     );
     res.status(200).json(issues);
@@ -62,6 +61,8 @@ router.get("/user", async (req, res, next) => {
     next(err);
   }
 });
+
+router.get("/search", async (req, res) => {});
 
 router.post("/issue", async (req, res, next) => {
   const { body } = req;

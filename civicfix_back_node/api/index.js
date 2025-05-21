@@ -1,6 +1,6 @@
 "use strict";
 import express from "express";
-import { router as authRouter } from "./auth.js";
+import { router as authRouter, isAuthenticated } from "./auth.js";
 import usersRouter from "./users.js";
 import issuesRouter from "./issues.js";
 
@@ -10,7 +10,7 @@ router.use("/auth", authRouter);
 router.use("/users", usersRouter);
 router.use("/issues", issuesRouter);
 
-router.get("/location-data", async (req, res, next) => {
+router.get("/location-data", isAuthenticated, async (req, res, next) => {
   try {
     const { lat, lon } = req.query;
     const response = await fetch(
