@@ -1,74 +1,82 @@
-import React, { useState } from 'react';
-import Nav from '../components/Nav';
-import Footer from '../components/Footer';
+import React, { useState, useEffect } from "react";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer";
+
+async function getReports() {
+  const reports = await (await fetch("/api/issues")).json();
+  return reports;
+}
 
 export default function ReportsPage() {
-    const [search, setSearch] = useState('');
-    const [orderBy, setOrderBy] = useState('date');
-    const [reports, setReports] = useState([]); // Placeholder for fetched reports
+  const [search, setSearch] = useState("");
+  const [orderBy, setOrderBy] = useState("date");
+  const [reports, setReports] = useState([]);
 
-    // Placeholder: fetch reports logic would go here
+  useEffect(() => {
+    getReports()
+      .then((reports) => setReports(reports))
+      .catch((error) => console.error(error));
+  }, []);
 
-    return (
-        <div className="d-flex flex-column min-vh-100">
-            <Nav />
-            <main className="flex-grow-1 bg-light" style={{ paddingTop: '80px' }}>
-                {/* Search Section */}
-                <div className="container py-4" style={{ minHeight: '20vh' }}>
-                    <form className="row g-2 align-items-center">
-                        <div className="col-auto flex-grow-1">
-                            <input
-                                type="text"
-                                className="form-control"
-                                placeholder="Search reports..."
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                            />
-                        </div>
-                        <div className="col-auto">
-                            <button type="submit" className="btn btn-primary">Search</button>
-                        </div>
-                        <div className="col-12 col-md-6 mt-2">
-                            <select
-                                className="form-select"
-                                value={orderBy}
-                                onChange={e => setOrderBy(e.target.value)}
-                            >
-                                <option value="date">Order by Date</option>
-                                <option value="title">Order by Title</option>
-                                <option value="votes">Order by Vote Count</option>
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                {/* Display Section */}
-                <div className="container pb-5">
-                    <div className="row g-3">
-                        {/* Placeholder for report cards */}
-                        {reports.length === 0 ? (
-                            <div className="col-12 text-center text-muted py-5">
-                                No reports to display.
-                            </div>
-                        ) : (
-                            reports.map((report, idx) => (
-                                <div className="col-12 col-md-6 col-lg-4" key={report.id || idx}>
-                                    <div className="card shadow-sm h-100">
-                                        <div className="card-body">
-                                            <h5 className="card-title">{report.title}</h5>
-                                            <p className="card-text">{report.description}</p>
-                                            <div className="d-flex justify-content-between align-items-center mt-3">
-                                                <span className="badge bg-secondary">{report.date}</span>
-                                                <span className="badge bg-info">Votes: {report.votes}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                </div>
-            </main>
-            <Footer />
+  return (
+    <div className="d-flex flex-column min-vh-100">
+      <Nav />
+      <main className="flex-grow-1 bg-light" style={{ paddingTop: "80px" }}>
+        {/* Search Section */}
+        <div className="container py-4" style={{ minHeight: "20vh" }}>
+          <form className="row g-2 align-items-center">
+            <div className="col-auto flex-grow-1">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search reports..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="col-auto">
+              <button type="submit" className="btn btn-primary">
+                Search
+              </button>
+            </div>
+            <div className="col-12 col-md-6 mt-2">
+              <select
+                className="form-select"
+                value={orderBy}
+                onChange={(e) => setOrderBy(e.target.value)}>
+                <option value="date">Order by Date</option>
+                <option value="title">Order by Title</option>
+                <option value="votes">Order by Vote Count</option>
+              </select>
+            </div>
+          </form>
         </div>
-    );
+        {/* Display Section */}
+        <div className="container pb-5">
+          <div className="row g-3">
+            {/* Placeholder for report cards */}
+            {reports.length === 0 ? (
+              <div className="col-12 text-center text-muted py-5">No reports to display.</div>
+            ) : (
+              reports.map((report, idx) => (
+                <div className="col-12 col-md-6 col-lg-4" key={report.id || idx}>
+                  <div className="card shadow-sm h-100">
+                    <div className="card-body">
+                      <h5 className="card-title">{report.title}</h5>
+                      <p className="card-text">{report.description}</p>
+                      <div className="d-flex justify-content-between align-items-center mt-3">
+                        <span className="badge bg-secondary">{report.date_created}</span>
+                        <span className="badge bg-info">Votes: {report.vote_total}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
 }

@@ -15,7 +15,7 @@ async function fetchAllUsers() {
 
 // Pretend this is imported from reportList.js
 async function fetchAllIssues() {
-  const res = await fetch("/api/issues", { credentials: "include" });
+  const res = await fetch("/api/issues/admin", { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch reports");
   const reports = await res.json();
   // Sort alphabetically by title

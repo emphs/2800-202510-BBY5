@@ -42,11 +42,11 @@ router.post("/signup", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const result = await pool.query(
+    const [{ insertId: userId }] = await pool.query(
       "INSERT INTO users (username, email, password) VALUES (?, ?, ?)",
       [username, email, hashedPassword]
     );
-    const user = result.rows[0];
+    const [[user]] = await pool.query("SELECT * FROM users WHERE id = ?", [userId]);
 
     req.session.userId = user.id;
     req.session.userType = user.user_type;
@@ -68,7 +68,6 @@ router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Use the shared pool from req.pgPool
     const [result] = await pool.query("SELECT * FROM users WHERE email = ?", [email]);
 
     if (result.length === 0) {
@@ -76,7 +75,7 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const user = result[0];
+    const [user] = result;
     const match = await bcrypt.compare(password, user.password);
 
     if (!match) {

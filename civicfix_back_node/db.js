@@ -1,4 +1,4 @@
-import { createPool } from "mysql2";
+import { createPool } from "mysql2/promise";
 import { readFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";

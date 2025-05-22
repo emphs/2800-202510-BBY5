@@ -23,15 +23,50 @@ function validateFields(body) {
   return [null, values];
 }
 
-router.get("/", requireAdmin, async (req, res) => {
+router.get("/admin", requireAdmin, async (req, res) => {
   try {
-    const [rows] = await req.mysqlPool.query(
+    const [rows] = await pool.query(
       "SELECT id, title, type, status, creator_id FROM issues ORDER BY title ASC"
     );
     res.json(rows);
   } catch (err) {
     console.error("Admin get reports error:", err);
     res.status(500).json({ message: "Failed to fetch reports" });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const [issues] = await pool.query(
+      `
+      SELECT 
+        i.id,
+        i.title,
+        i.type,
+        i.description,
+        i.date_created,
+        u.username,
+        i.location,
+        i.status,
+        COALESCE(SUM(v.vote),0) AS vote_total,
+        CASE WHEN SUM(CASE WHEN v.user_id = ? THEN 1 ELSE 0 END) > 0 THEN 'voted' ELSE 'not voted' END AS user_voted
+      FROM
+          issues i
+              INNER JOIN
+          users u ON i.creator_id = u.id
+              LEFT JOIN
+          votes v ON i.id = v.issue_id
+      GROUP BY
+        i.id, i.title, i.type, i.description,
+        i.date_created, u.username, i.location, i.status;
+      `,
+      [req.session.userId]
+    );
+
+    res.status(200).json(issues);
+  } catch (error) {
+    console.log("Error fetching issues", error);
+    res.status(500).json({ message: "Error fetching issues", error });
   }
 });
 

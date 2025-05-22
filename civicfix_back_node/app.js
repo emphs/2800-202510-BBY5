@@ -34,7 +34,6 @@ const app = express();
 const staticPath = resolve(__dirname, "../civicfix_front_react_js/dist");
 const indexPath = resolve(staticPath, "index.html");
 
-app.use("/api", apiRouter);
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "civicfix_default_secret",
@@ -48,11 +47,13 @@ app.use(
   })
 );
 app.use(json());
+app.use(express.urlencoded({ extended: false }));
 app.use(expressStatic(staticPath));
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url}`);
   next();
 });
+app.use("/api", apiRouter);
 
 // --- SPA Fallback for Frontend Routing ---
 app.use((req, res, next) => {
