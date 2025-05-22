@@ -1,0 +1,16 @@
+meta {
+  name: gen-description STANLEY PARK
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/issues/gen-description?location=Stanley Park, Vancouver, BC, Canada&title=Tree fallen on road
+  body: none
+  auth: inherit
+}
+
+params:query {
+  location: Stanley Park, Vancouver, BC, Canada
+  title: Tree fallen on road
+}
