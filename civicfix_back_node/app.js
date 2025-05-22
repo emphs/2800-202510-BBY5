@@ -1,7 +1,6 @@
 // --- Imports and Setup ---
 import express, { json, static as expressStatic } from "express";
 import { createPool as createMySQLPool } from "mysql2/promise"; // MySQL pool for issues
-import { Pool as PgPool } from "pg"; // PostgreSQL pool for users/auth
 import { readFileSync } from "fs";
 import "dotenv/config";
 import { join, dirname, resolve } from "path";
@@ -14,6 +13,8 @@ import logoutRouter from "./api/logout.js";
 import locationRouter from "./api/location.js";
 import authorizeRouter from "./api/authorize.js";
 import adminRouter from "./api/admin.js";
+import changePasswordRouter from "./api/change_password.js";
+import modifyProfileRouter from "./api/modify_profile.js";
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
@@ -21,7 +22,6 @@ process.on('unhandledRejection', (reason, promise) => {
 
 // --- Environment Variable Checks ---
 const requiredEnv = [
-  "DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_DATABASE", // PostgreSQL for users
   "AIVEN_HOST", "AIVEN_PORT", "AIVEN_USER", "AIVEN_PASSWORD", "AIVEN_DATABASE", // MySQL for issues
   "GEMINI_API_KEY", "PORT"
 ];
@@ -52,17 +52,7 @@ app.use(
   })
 );
 
-// --- PostgreSQL Pool (for users/auth) ---
-const pgPool = new PgPool({
-  host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  ssl: { rejectUnauthorized: false },
-});
-
-// --- MySQL Pool (for issues) ---
+// --- MySQL Pool (Aiven, for users/auth and issues) ---
 const mysqlPool = await createMySQLPool({
   host: process.env.AIVEN_HOST,
   port: process.env.AIVEN_PORT,
@@ -88,27 +78,45 @@ app.use((req, res, next) => {
 
 // --- API Routers ---
 // Pass correct pool to routers as needed
-app.use("/api/signup", (req, res, next) => { req.pgPool = pgPool; next(); }, signupRouter);
-app.use("/api/login", (req, res, next) => { req.pgPool = pgPool; next(); }, loginRouter);
-console.log("Mounted /api/login router");
+app.use("/api/signup", (req, res, next) => { req.mysqlPool = mysqlPool; next(); }, signupRouter);
+app.use("/api/login", (req, res, next) => { req.mysqlPool = mysqlPool; next(); }, loginRouter);
+app.use("/api/change-password", (req, res, next) => { req.mysqlPool = mysqlPool; next(); }, changePasswordRouter);
 app.use("/api/logout", logoutRouter);
 app.use("/api/location", locationRouter);
 app.use("/api/authorize", authorizeRouter);
 app.use("/api/admin", (req, res, next) => {
-  req.pgPool = pgPool;
   req.mysqlPool = mysqlPool;
   next();
 }, adminRouter);
+app.use("/api/modify_profile", (req, res, next) => { req.mysqlPool = mysqlPool; next(); }, modifyProfileRouter);
 
-app.get('/api/me', (req, res) => {
-  if (!req.session || !req.session.userId) {
-    return res.status(401).json({ message: 'Not logged in' });
+app.get('/api/me', async (req, res) => {
+  if (
+    !req.session ||
+    !req.session.userId ||
+    !req.session.username ||
+    !req.session.email ||
+    !req.session.userType
+  ) {
+    return res.status(401).json({ message: 'Not logged in or session incomplete' });
   }
-  res.json({
-    userId: req.session.userId,
-    userType: req.session.userType,
-    email: req.session.email, // or username
-  });
+  // Fetch latest user info from MySQL
+  try {
+    const [rows] = await mysqlPool.query(
+      'SELECT id, username, email, userType FROM users WHERE id = ?',
+      [req.session.userId]
+    );
+    if (!rows.length) return res.status(404).json({ message: 'User not found' });
+    const user = rows[0];
+    res.json({
+      userId: user.id,
+      userType: user.userType,
+      email: user.email,
+      username: user.username
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch user info' });
+  }
 });
 
 // --- API Endpoints (MySQL for issues) ---

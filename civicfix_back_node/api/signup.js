@@ -13,28 +13,28 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ message: "All fields are required" });
     }
 
+    if (!req.mysqlPool) {
+        return res.status(500).json({ message: "Server misconfiguration: mysqlPool missing" });
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const result = await req.pgPool.query(
-            "INSERT INTO users (username, email, password, user_type) VALUES ($1, $2, $3, $4) RETURNING id, username, email, user_type",
+        const [result] = await req.mysqlPool.query(
+            "INSERT INTO users (username, email, password, userType) VALUES (?, ?, ?, ?)",
             [username, email, hashedPassword, 'user']
         );
-        const user = result.rows[0];
+        const userId = result.insertId;
 
-        req.session.userId = user.id;
-        req.session.userType = user.user_type;
-        req.session.email = user.email;
-        req.session.username = user.username;
+        req.session.userId = userId;
+        req.session.userType = 'user';
+        req.session.email = email;
+        req.session.username = username;
 
         res.status(201).json({ message: "User created successfully" });
     } catch (err) {
-        console.error("Signup error:", err);
-        if (err.code === "23505") {
-            res.status(409).json({ message: "Username or email already exists" });
-        } else {
-            res.status(500).json({ message: "Server error" });
-        }
+        console.error("Error in /api/signup:", err);
+        res.status(500).json({ message: "Server error" });
     }
 });
 
