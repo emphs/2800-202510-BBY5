@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
     }
 
     req.session.userId = user.id;
-    req.session.userType = user.user_type;
+    req.session.user_type = user.user_type;
     req.session.email = user.email;
     res.json({ message: "Login successful" });
   } catch (err) {

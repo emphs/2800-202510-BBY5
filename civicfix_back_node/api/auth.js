@@ -8,7 +8,7 @@ const router = express.Router();
 function isAuthenticated() {}
 
 function requireAdmin(req, res, next) {
-  if (!req.session || req.session.userType !== "admin") {
+  if (!req.session || req.session.user_type !== "admin") {
     return res.status(403).json({ message: "Unauthorized: Admins only" });
   }
   next();
@@ -20,7 +20,7 @@ router.get("/authenticated", (req, res) => {
   }
   res.json({
     userId: req.session.userId,
-    userType: req.session.userType,
+    user_type: req.session.user_type,
     email: req.session.email,
     username: req.session.username,
   });
@@ -30,7 +30,7 @@ router.get("/authorized", (req, res) => {
   if (!req.session || !req.session.userId) {
     return;
   }
-  res.json({ authorized: req.session.userType === "admin", userType: req.session.userType });
+  res.json({ authorized: req.session.user_type === "admin", user_type: req.session.user_type });
 });
 
 router.post("/signup", async (req, res) => {
@@ -50,7 +50,7 @@ router.post("/signup", async (req, res) => {
     const user = result.rows[0];
 
     req.session.userId = user.id;
-    req.session.userType = user.user_type;
+    req.session.user_type = user.user_type;
     req.session.email = user.email;
     req.session.username = user.username;
 
@@ -86,7 +86,7 @@ router.post("/login", async (req, res) => {
     }
 
     req.session.userId = user.id;
-    req.session.userType = user.user_type;
+    req.session.user_type = user.user_type;
     req.session.email = user.email;
     req.session.username = user.username;
     res.json({ message: "Login successful" });
