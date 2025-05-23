@@ -49,7 +49,7 @@ router.get("/", async (req, res) => {
         i.location,
         i.status,
         COALESCE(SUM(v.vote),0) AS vote_total,
-        CASE WHEN SUM(CASE WHEN v.user_id = ? THEN 1 ELSE 0 END) > 0 THEN v.vote ELSE 0 END AS user_voted
+        COALESCE(MAX(CASE WHEN v.user_id = ? THEN v.vote END), 0) AS user_voted
       FROM
           issues i
               INNER JOIN
@@ -58,7 +58,7 @@ router.get("/", async (req, res) => {
           votes v ON i.id = v.issue_id
       GROUP BY
         i.id, i.title, i.type, i.description,
-        i.date_created, u.username, i.location, i.status, user_voted;
+        i.date_created, u.username, i.location, i.status;
       `,
       [req.session.userId]
     );
@@ -162,6 +162,14 @@ router.put("/:id", async (req, res, next) => {
 });
 
 router.put("/vote/:id", async (req, res) => {
+  const userId = req.session.userId;
+  const issueId = req.params.id;
+  const vote = req.body.vote;
+
+  console.log("User ID:", userId);
+  console.log("Issue ID:", issueId);
+  console.log("Vote:", vote);
+
   const connection = await pool.getConnection();
 
   try {

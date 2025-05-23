@@ -4,8 +4,14 @@ import Footer from "../components/Footer";
 import { CircleArrowUp, CircleArrowDown } from "lucide-react";
 
 async function getReports() {
-  const reports = await (await fetch("/api/issues")).json();
-  return reports;
+  try {
+    const reports = await (await fetch("/api/issues")).json();
+    console.log("Reports:", reports);
+
+    return reports;
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+  }
 }
 
 async function changeVote(vote, reportId) {
@@ -87,11 +93,11 @@ export default function ReportsPage() {
                         <div className="flex flex-row gap-1 bg-gray-300 py-1 px-2 rounded-2xl">
                           <CircleArrowUp
                             fill={report.user_voted === 1 ? "#73da88" : "none"}
-                            onClick={() => changeVote(1, report.id, idx)}
+                            onClick={() => changeVote(1, report.id)}
                           />
                           <CircleArrowDown
                             fill={report.voted === -1 ? "#73da88" : "none"}
-                            onClick={() => changeVote(-1)}
+                            onClick={() => changeVote(-1, report.id)}
                           />
                         </div>
                         <span className="badge bg-info">Votes: {report.vote_total}</span>
