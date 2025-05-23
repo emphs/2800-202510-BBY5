@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Nav from '../components/Nav';
 import Footer from '../components/Footer';
 
@@ -51,12 +51,12 @@ const IssueTypes = {
     'Signage & Street Furniture': '🪧'
 };
 
-// delete L.Icon.Default.prototype._getIconUrl;
-// L.Icon.Default.mergeOptions({
-//     iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/imag/marker-icon-2x.png',
-//     iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-//     shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-// });
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+    iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+    shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
 
 function MapPage() {
@@ -76,7 +76,7 @@ function MapPage() {
             type: 'Road & Traffic',
             title: 'Pothole on Main St',
             description: 'Large pothole causing traffic delays.',
-            location: {lat: 40.7128, lng: -74.006},
+            location: {y: 40.7128, x: -74.006},
             date_created: '2025-05-01',
             total_vote: 432,
             voted: true,
@@ -87,12 +87,23 @@ function MapPage() {
             type: 'Lighting & Utilities',
             title: 'Streetlight out on 5th Ave',
             description: 'Streetlight not working near the park.',
-            location: {lat: 40.7138, lng: -74.001},
+            location: {y: 40.7138, x: -74.001},
             date_created: '2025-05-10',
             total_vote: 87,
             voted: false,
         },
     ]);
+
+
+    useEffect(() => {
+        (async () => {
+            let a = await fetch("/api/issues/get_issues")
+            console.log(a)
+            let a_json = await a.json();
+            console.log(a_json);
+            setIssues(a_json);
+        })()
+    }, [])
 
     const onMarkerClick = (issue) => {
         setSelectedIssue(issue);
@@ -185,21 +196,22 @@ function MapPage() {
         const handleSubmit = async (e) => {
             e.preventDefault();
             try {
-                // const response = await fetch('/api/issue', {
-                //     method: 'POST',
-                //     headers: { 'Content-Type': 'application/json' },
-                //     body: JSON.stringify({
-                //         ...formData,
-                //         creator_id: 1
-                //     })
-                // });
-                // if (response.ok) {
-                //     setExpanded(false);
-                //     setIsCreatingNew(false);
-                // }
-                console.log(formData);
-                setInfoVis(false);
-                setCreateVis(false);
+                const response = await fetch('/api/issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ...formData,
+                        creator_id: 1
+                    })
+                });
+                if (response.ok) {
+                    console.log(formData);
+                    setInfoVis(false);
+                    setCreateVis(false);
+                }
+                // console.log(formData);
+                // setInfoVis(false);
+                // setCreateVis(false);
             } catch (error) {
                 console.error('Error creating issue:', error);
             }
@@ -301,7 +313,7 @@ function MapPage() {
             <Nav />
             <div className="relative top-12 h-screen w-screen flex flex-col">
                 <MapContainer
-                    center={[40.7128, -74.006]}
+                    center={initPosition}
                     zoom={13}
                     scrollWheelZoom={true}
                     className="flex-grow z-0"
@@ -316,7 +328,7 @@ function MapPage() {
                     {issues.map((issue) => (
                         <Marker
                             key={issue.id}
-                            position={[issue.location.lat, issue.location.lng]}
+                            position={[issue.location.y, issue.location.x]}
                             eventHandlers={{
                                 click: () => onMarkerClick(issue),
                             }}
@@ -370,7 +382,7 @@ function MapPage() {
                                             onClick={() => handleVote()}
                                             aria-pressed={selectedIssue.voted}
                                         >
-                                            {selectedIssue.voted ? "Voted: " : "Up Vote: "} {selectedIssue.total_vote}
+                                            {selectedIssue.voted ? "Voted: " : "Up Vote: "} {selectedIssue.total_vote || 0}
                                         </button>
                                     </div>
 
