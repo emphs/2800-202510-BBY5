@@ -37,9 +37,7 @@ router.get("/admin", requireAdmin, async (req, res) => {
 
 router.get("/get_issues", async (req, res) => {
   try {
-    const [rows] = await pool.query(
-        "SELECT * FROM issues ORDER BY title ASC"
-    );
+    const [rows] = await pool.query("SELECT * FROM issues ORDER BY title ASC");
     res.json(rows);
   } catch (err) {
     console.error("get reports error:", err);
@@ -173,10 +171,37 @@ router.put("/:id", async (req, res, next) => {
   }
 });
 
+router.post("/vote", async (req, res) => {
+  const { userId } = req.session;
+  const { issueId, vote } = req.body;
+
+  console.log("User ID:", userId);
+  console.log("Issue ID:", issueId);
+  console.log("Vote:", vote);
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const [result] = await connection.execute(
+      "INSERT INTO votes (user_id, issue_id, vote) VALUES (?, ?, ?)",
+      [userId, issueId, vote]
+    );
+    await connection.commit();
+
+    res.status(200).json({ message: "Vote created", voteId: result.insertId });
+  } catch (error) {
+    await connection.rollback();
+    next(error);
+  } finally {
+    connection.release();
+  }
+});
+
 router.put("/vote/:id", async (req, res) => {
-  const userId = req.session.userId;
-  const issueId = req.params.id;
-  const vote = req.body.vote;
+  const { userId } = req.session;
+  const { id: issueId } = req.params;
+  const { vote } = req.body;
 
   console.log("User ID:", userId);
   console.log("Issue ID:", issueId);

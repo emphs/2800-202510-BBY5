@@ -25,6 +25,17 @@ async function changeVote(vote, reportId) {
   console.log("Vote update response:", response);
 }
 
+async function createVote(vote, reportId) {
+  const response = await fetch("/api/issues/vote", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ vote, reportId }),
+  });
+  console.log("Vote update response:", response);
+}
+
 export default function ReportsPage() {
   const [search, setSearch] = useState("");
   const [orderBy, setOrderBy] = useState("date");
@@ -93,11 +104,19 @@ export default function ReportsPage() {
                         <div className="flex flex-row gap-1 bg-gray-300 py-1 px-2 rounded-2xl">
                           <CircleArrowUp
                             fill={report.user_voted === 1 ? "#73da88" : "none"}
-                            onClick={() => changeVote(1, report.id)}
+                            onClick={() =>
+                              report.user_voted != 0
+                                ? changeVote(1, report.id)
+                                : createVote(1, report.id)
+                            }
                           />
                           <CircleArrowDown
                             fill={report.voted === -1 ? "#73da88" : "none"}
-                            onClick={() => changeVote(-1, report.id)}
+                            onClick={() =>
+                              report.user_voted != 0
+                                ? changeVote(-1, report.id)
+                                : createVote(-1, report.id)
+                            }
                           />
                         </div>
                         <span className="badge bg-info">Votes: {report.vote_total}</span>

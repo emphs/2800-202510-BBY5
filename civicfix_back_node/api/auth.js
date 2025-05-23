@@ -19,13 +19,33 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-router.get("/authenticated", isAuthenticated, (req, res) => {
-  res.json({
-    userId: req.session.userId,
-    userType: req.session.userType,
-    email: req.session.email,
-    username: req.session.username,
-  });
+router.get("/authenticated", isAuthenticated, async (req, res) => {
+  if (
+    !req.session ||
+    !req.session.userId ||
+    !req.session.username ||
+    !req.session.email ||
+    !req.session.userType
+  ) {
+    return res.status(401).json({ message: "Not logged in or session incomplete" });
+  }
+  // Fetch latest user info from MySQL
+  try {
+    const [rows] = await pool.query(
+      "SELECT id, username, email, user_type FROM users WHERE id = ?",
+      [req.session.userId]
+    );
+    if (!rows.length) return res.status(404).json({ message: "User not found" });
+    const user = rows[0];
+    res.json({
+      userId: user.id,
+      userType: user.user_type,
+      email: user.email,
+      username: user.username,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch user info" });
+  }
 });
 
 router.get("/authorized", requireAdmin, (req, res) => {
@@ -106,6 +126,35 @@ router.post("/logout", (req, res) => {
     });
   } else {
     res.status(200).json({ message: "No active session" });
+  }
+});
+
+router.post("/change-password", isAuthenticated, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: "Both current and new password are required" });
+  }
+
+  try {
+    const [rows] = await pool.query("SELECT * FROM users WHERE id = ?", [req.session.userId]);
+    if (!rows.length) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const [user] = rows;
+    const match = await bcrypt.compare(currentPassword, user.password);
+    if (!match) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE users SET password = ? WHERE id = ?", [
+      hashedPassword,
+      req.session.userId,
+    ]);
+    res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    console.error("Error in /api/change-password:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
