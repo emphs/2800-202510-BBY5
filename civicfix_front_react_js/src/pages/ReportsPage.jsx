@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
+import { CircleArrowUp, CircleArrowDown } from "lucide-react";
 
 async function getReports() {
   const reports = await (await fetch("/api/issues")).json();
   return reports;
+}
+
+async function changeVote(vote, reportId) {
+  const response = await fetch(`/api/issues/vote/${reportId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ vote }),
+  });
+  console.log("Vote update response:", response);
 }
 
 export default function ReportsPage() {
@@ -53,7 +65,7 @@ export default function ReportsPage() {
         </div>
         {/* Display Section */}
         <div className="container pb-5">
-          <div className="row g-3">
+          <div className="flex flex-col g-5">
             {/* Placeholder for report cards */}
             {reports.length === 0 ? (
               <div className="col-12 text-center text-muted py-5">No reports to display.</div>
@@ -65,7 +77,23 @@ export default function ReportsPage() {
                       <h5 className="card-title">{report.title}</h5>
                       <p className="card-text">{report.description}</p>
                       <div className="d-flex justify-content-between align-items-center mt-3">
-                        <span className="badge bg-secondary">{report.date_created}</span>
+                        <span className="badge bg-gray-200 p-2">
+                          {new Date(report.date_created).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </span>
+                        <div className="flex flex-row gap-1 bg-gray-300 py-1 px-2 rounded-2xl">
+                          <CircleArrowUp
+                            fill={report.user_voted === 1 ? "#73da88" : "none"}
+                            onClick={() => changeVote(1, report.id, idx)}
+                          />
+                          <CircleArrowDown
+                            fill={report.voted === -1 ? "#73da88" : "none"}
+                            onClick={() => changeVote(-1)}
+                          />
+                        </div>
                         <span className="badge bg-info">Votes: {report.vote_total}</span>
                       </div>
                     </div>

@@ -49,7 +49,7 @@ router.get("/", async (req, res) => {
         i.location,
         i.status,
         COALESCE(SUM(v.vote),0) AS vote_total,
-        CASE WHEN SUM(CASE WHEN v.user_id = ? THEN 1 ELSE 0 END) > 0 THEN 'voted' ELSE 'not voted' END AS user_voted
+        CASE WHEN SUM(CASE WHEN v.user_id = ? THEN 1 ELSE 0 END) > 0 THEN v.vote ELSE 0 END AS user_voted
       FROM
           issues i
               INNER JOIN
@@ -58,7 +58,7 @@ router.get("/", async (req, res) => {
           votes v ON i.id = v.issue_id
       GROUP BY
         i.id, i.title, i.type, i.description,
-        i.date_created, u.username, i.location, i.status;
+        i.date_created, u.username, i.location, i.status, user_voted;
       `,
       [req.session.userId]
     );
@@ -99,7 +99,7 @@ router.get("/user", async (req, res, next) => {
 
 router.get("/search", async (req, res) => {});
 
-router.post("/issue", async (req, res, next) => {
+router.post("/", async (req, res, next) => {
   const { body } = req;
   const [error, values] = validateFields(body);
 
@@ -125,7 +125,7 @@ router.post("/issue", async (req, res, next) => {
   }
 });
 
-router.put("/issue/:id", async (req, res, next) => {
+router.put("/:id", async (req, res, next) => {
   const { body } = req;
   const issueId = req.params.id;
   const [error, values] = validateFields(body);
@@ -153,6 +153,29 @@ router.put("/issue/:id", async (req, res, next) => {
     }
 
     res.status(200).json({ message: "Issue updated", issueId: result.insertId });
+  } catch (error) {
+    await connection.rollback();
+    next(error);
+  } finally {
+    connection.release();
+  }
+});
+
+router.put("/vote/:id", async (req, res) => {
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const [result] = await connection.execute(
+      `UPDATE votes SET vote = ? WHERE user_id = ? AND issue_id = ?`,
+      [req.body.vote, req.session.userId, req.params.id]
+    );
+    await connection.commit();
+    if (result.affectedRows == 0) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    res.status(200).json({ message: "Vote updated", issueId: result.insertId });
   } catch (error) {
     await connection.rollback();
     next(error);
