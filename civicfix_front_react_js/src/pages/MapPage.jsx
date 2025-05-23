@@ -66,38 +66,34 @@ function MapPage() {
   const [mapCtx, setMapCtx] = useState(null);
 
   const [issues, setIssues] = useState([
-    //DB fetch
+      //template
     {
       id: 1,
       status: "In Progress",
       type: "Road & Traffic",
       title: "Pothole on Main St",
       description: "Large pothole causing traffic delays.",
-      location: { y: 40.7128, x: -74.006 },
+      location: { y: 50.7128, x: -124.006 },
       date_created: "2025-05-01",
-      total_vote: 432,
-      voted: true,
-    },
-    {
-      id: 2,
-      status: "Not Started",
-      type: "Lighting & Utilities",
-      title: "Streetlight out on 5th Ave",
-      description: "Streetlight not working near the park.",
-      location: { y: 40.7138, x: -74.001 },
-      date_created: "2025-05-10",
-      total_vote: 87,
-      voted: false,
+      vote_total: 432,
+      user_voted: true,
     },
   ]);
 
   useEffect(() => {
     (async () => {
-      let a = await fetch("/api/issues/get_issues");
-      console.log(a);
-      let a_json = await a.json();
-      console.log(a_json);
-      setIssues(a_json);
+      let issues = await fetch("/api/issues/");
+      // fetch("/api/issues/").then((res) => res.json()).then((data) => {
+      //   console.log(2, data);});
+      // console.log(a);
+      if (issues.ok) {
+
+        let issues_json = await issues.json();
+        console.log(issues_json);
+        setIssues(issues_json);
+      } else {
+        console.log("fetch issues failed");
+      }
     })();
   }, []);
 
@@ -132,21 +128,51 @@ function MapPage() {
     </button>
   );
 
-  const handleVote = () => {
-    //db api call
+  const handleVote = async () => {
+
+
+    if (selectedIssue.user_voted) {
+
+      fetch("/api/issues/vote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          issueId: selectedIssue.id,
+          vote: 1,
+        })
+      }).then(r => {
+        if (!r.ok) {
+          console.log("vote failed");
+        }
+      });
+    } else {
+
+      fetch(`/api/issues/vote/${selectedIssue.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vote: 0,
+        })
+      }).then(r => {
+        if (!r.ok) {
+          console.log("vote failed");
+        }
+      });
+
+    }
 
     setSelectedIssue({
       ...selectedIssue,
-      total_vote: selectedIssue.voted ? selectedIssue.total_vote - 1 : selectedIssue.total_vote + 1,
-      voted: !selectedIssue.voted,
+      vote_total: selectedIssue.user_voted ? Number(selectedIssue.vote_total) - 1 : Number(selectedIssue.vote_total) + 1,
+      user_voted: !selectedIssue.user_voted,
     });
 
     const updatedIssues = issues.map((issue) => {
       if (issue.id === selectedIssue.id) {
         return {
           ...issue,
-          total_vote: issue.voted ? issue.total_vote - 1 : issue.total_vote + 1,
-          voted: !issue.voted,
+          vote_total: issue.user_voted ? issue.vote_total - 1 : issue.vote_total + 1,
+          user_voted: !issue.user_voted,
         };
       }
       return issue;
@@ -180,19 +206,18 @@ function MapPage() {
       type: "",
       title: "",
       description: "",
-      lat: location?.lat || "",
-      lng: location?.lng || "",
+      y: location?.lat || "",
+      x: location?.lng || "",
     });
 
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
-        const response = await fetch("/api/issue", {
+        const response = await fetch("/api/issues", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...formData,
-            creator_id: 1,
           }),
         });
         if (response.ok) {
@@ -266,8 +291,8 @@ function MapPage() {
               <input
                 type="number"
                 step="any"
-                value={formData.lat}
-                onChange={(e) => setFormData({ ...formData, lat: e.target.value })}
+                value={formData.y}
+                onChange={(e) => setFormData({ ...formData, y: e.target.value })}
                 className="w-full p-2 border rounded"
                 required
               />
@@ -277,8 +302,8 @@ function MapPage() {
               <input
                 type="number"
                 step="any"
-                value={formData.lng}
-                onChange={(e) => setFormData({ ...formData, lng: e.target.value })}
+                value={formData.x}
+                onChange={(e) => setFormData({ ...formData, x: e.target.value })}
                 className="w-full p-2 border rounded"
                 required
               />
@@ -363,14 +388,14 @@ function MapPage() {
                     </span>
                     <button
                       className={`flex items-center gap-1 text-sm font-medium px-3 py-1 rounded float-right ${
-                        selectedIssue.voted
+                        selectedIssue.user_voted
                           ? "border bg-orange-300 text-white"
                           : "border border-orange-300 text-orange-300"
                       }`}
                       onClick={() => handleVote()}
-                      aria-pressed={selectedIssue.voted}>
-                      {selectedIssue.voted ? "Voted: " : "Up Vote: "}{" "}
-                      {selectedIssue.total_vote || 0}
+                      aria-pressed={selectedIssue.user_voted}>
+                      {selectedIssue.user_voted ? "Voted: " : "Up Vote: "}{" "}
+                      {selectedIssue.vote_total || 0}
                     </button>
                   </div>
 

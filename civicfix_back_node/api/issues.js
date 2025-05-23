@@ -111,6 +111,7 @@ router.get("/search", async (req, res) => {});
 
 router.post("/", async (req, res, next) => {
   const { body } = req;
+  const { userId } = req.session;
   const [error, values] = validateFields(body);
 
   if (error) return res.status(400).send(error);
@@ -122,7 +123,7 @@ router.post("/", async (req, res, next) => {
     const [result] = await connection.execute(
       `INSERT INTO issues (type, title, description, creator_id, location)
        VALUES (?, ?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326));`,
-      values
+        {...values, creator_id: userId}
     );
     await connection.commit();
 
