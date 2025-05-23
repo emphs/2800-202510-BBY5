@@ -17,9 +17,9 @@
     "lucide-react": "^0.506.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "styled-components": "^6.1.18",
     "react-leaflet": "^5.0.0",
     "react-script": "^2.0.5",
+    "styled-components": "^6.1.18",
     "tailwindcss": "^4.1.4",
     "web-vitals": "^2.1.4"
   },

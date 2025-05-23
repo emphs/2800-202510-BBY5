@@ -33,8 +33,31 @@
   }
 }
 
+.nav-icon-btn .nav-icon {
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-icon-btn:hover .nav-icon,
+.nav-icon-btn:focus .nav-icon {
+  transform: scale(1.25);
+}
+
 @media (width >= 600px) {
   #container {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-icon-btn .nav-icon {
+    width: 28px;
+    height: 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-icon-btn .nav-icon {
+    width: 24px;
+    height: 24px;
   }
 }

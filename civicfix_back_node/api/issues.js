@@ -35,6 +35,18 @@ router.get("/admin", requireAdmin, async (req, res) => {
   }
 });
 
+router.get("/get_issues", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+        "SELECT * FROM issues ORDER BY title ASC"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error("get reports error:", err);
+    res.status(500).json({ message: "Failed to fetch reports" });
+  }
+});
+
 router.get("/", async (req, res) => {
   try {
     const [issues] = await pool.query(

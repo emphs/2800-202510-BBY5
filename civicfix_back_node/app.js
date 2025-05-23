@@ -4,6 +4,7 @@ import "dotenv/config";
 import { join, dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import session from "express-session";
+import "dotenv/config";
 import apiRouter from "./api/index.js";
 import "dotenv/config";
 
@@ -34,6 +35,7 @@ const app = express();
 const staticPath = resolve(__dirname, "../civicfix_front_react_js/dist");
 const indexPath = resolve(staticPath, "index.html");
 
+app.use("/api", apiRouter);
 app.use(
   session({
     secret: process.env.SESSION_SECRET || "civicfix_default_secret",
@@ -46,10 +48,14 @@ app.use(
     },
   })
 );
+
 app.use(json());
 app.use(expressStatic(join(__dirname, "../civicfix_front_react_js/dist")));
 app.use(express.urlencoded({ extended: false }));
 app.use(expressStatic(staticPath));
+
+app.use("/api", apiRouter);
+
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url}`);
   next();
@@ -75,6 +81,7 @@ app.use((req, res, next) => {
   }
 });
 
+// --- Centralized Error Handler ---
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ message: err.message || "Internal Server Error" });
