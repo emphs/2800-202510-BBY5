@@ -200,7 +200,6 @@ function MapPage() {
   };
 
   const CreateIssue = ({ location }) => {
-    console.log(location);
 
     const [formData, setFormData] = useState({
       type: "",
@@ -213,6 +212,7 @@ function MapPage() {
     const handleSubmit = async (e) => {
       e.preventDefault();
       try {
+        console.log(formData);
         const response = await fetch("/api/issues", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -221,7 +221,6 @@ function MapPage() {
           }),
         });
         if (response.ok) {
-          console.log(formData);
           setInfoVis(false);
           setCreateVis(false);
         }

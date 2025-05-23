@@ -8,7 +8,7 @@ import { requireAdmin, isAuthenticated } from "./auth.js";
 const router = express.Router();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const REQ_ISSUE_FIELDS = ["type", "title", "description", "creator_id", "lat", "lon"];
+const REQ_ISSUE_FIELDS = ["type", "title", "description", "y", "x"];
 
 router.use(isAuthenticated);
 
@@ -114,6 +114,8 @@ router.post("/", async (req, res, next) => {
   const { userId } = req.session;
   const [error, values] = validateFields(body);
 
+  console.log(values)
+
   if (error) return res.status(400).send(error);
 
   const connection = await pool.getConnection();
@@ -121,9 +123,9 @@ router.post("/", async (req, res, next) => {
   try {
     await connection.beginTransaction();
     const [result] = await connection.execute(
-      `INSERT INTO issues (type, title, description, creator_id, location)
-       VALUES (?, ?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326));`,
-        {...values, creator_id: userId}
+      `INSERT INTO issues (type, title, description, location, creator_id)
+       VALUES (?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326), ?);`,
+        [...values, userId]
     );
     await connection.commit();
 
