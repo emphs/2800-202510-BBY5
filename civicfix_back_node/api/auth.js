@@ -5,6 +5,13 @@ import pool from "../db.js";
 
 const router = express.Router();
 
+/**
+ * Checks if the user is authenticated by verifying the presence of a valid session.
+ * Returns 401 Unauthorized if the user is not logged in.
+ * @param {express.Request} req - Express request object
+ * @param {express.Response} res - Express response object
+ * @param {express.NextFunction} next - Express next function
+ */
 function isAuthenticated(req, res, next) {
   if (!req.session || !req.session.userId) {
     return res.status(401).json({ message: "Unauthorized: Must be logged in" });
@@ -12,6 +19,13 @@ function isAuthenticated(req, res, next) {
   next();
 }
 
+/**
+ * Checks if the user is an admin by verifying the presence of a valid session
+ * with type equal to "admin". Returns 403 Forbidden if the user is not an admin.
+ * @param {express.Request} req - Express request object
+ * @param {express.Response} res - Express response object
+ * @param {express.NextFunction} next - Express next function
+ */
 function requireAdmin(req, res, next) {
   if (!req.session || req.session.userType !== "admin") {
     return res.status(403).json({ message: "Forbidden: Admins only" });

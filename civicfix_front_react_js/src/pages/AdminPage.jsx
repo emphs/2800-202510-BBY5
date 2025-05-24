@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
-// Pretend this is imported from userList.js
+/**
+ * Fetches all users from the backend API.
+ * @returns {Promise<Array<{id: number, username: string, email: string, userType: string}>>} List of all users
+ * @throws {Error} If the fetch fails
+ */
 async function fetchAllUsers() {
-  // This would actually call your backend API
-  // For now, just a placeholder
   const res = await fetch("/api/users", { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch users");
   const users = await res.json();
@@ -13,7 +15,11 @@ async function fetchAllUsers() {
   return users.sort((a, b) => (a.email || a.username).localeCompare(b.email || b.username));
 }
 
-// Pretend this is imported from reportList.js
+/**
+ * Fetches all issues from the backend API.
+ * @returns {Promise<Array<{id: number, title: string, type: string, status: string, creator_id: number, lat: number, lon: number}>>} List of all issues
+ * @throws {Error} If the fetch fails
+ */
 async function fetchAllIssues() {
   const res = await fetch("/api/issues/admin", { credentials: "include" });
   if (!res.ok) throw new Error("Failed to fetch reports");
@@ -22,6 +28,17 @@ async function fetchAllIssues() {
   return reports.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
 }
 
+/**
+ * The AdminPage component displays a table of all users in the database, as
+ * well as a table of all issues in the database. The user can click on the
+ * "Manage Users" button to fetch the list of users, or click on the "Manage
+ * Reports" button to fetch the list of issues. The component handles errors
+ * by displaying an error message, and loading by displaying a "Loading..."
+ * message. The component also displays a message if no users or reports are
+ * found in the database.
+ * @function
+ * @returns {JSX.Element} The rendered page
+ */
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
   const [reports, setReports] = useState([]);
@@ -30,6 +47,12 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  /**
+   * Handles the click event for the "Manage Users" button.
+   * Fetches all users from the backend API and updates the component state
+   * with the list of users, shows the user list, and hides the report list.
+   * @function
+   */
   const handleManageUsers = async () => {
     setLoading(true);
     setError("");
@@ -45,6 +68,13 @@ const AdminPage = () => {
     }
   };
 
+  /**
+   * Handles the click event for the "Manage Reports" button.
+   * Fetches all issues from the backend API and updates the component state
+   * with the list of issues, shows the issue list, and hides the user list.
+   * Catches any errors and updates the component state with the error message.
+   * @function
+   */
   const handleManageReports = async () => {
     setLoading(true);
     setError("");

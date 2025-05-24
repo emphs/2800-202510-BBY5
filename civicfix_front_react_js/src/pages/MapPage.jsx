@@ -56,6 +56,14 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
+/**
+ * The main map page component.
+ *
+ * This component renders a map with all issues currently reported.
+ * It also renders a floating action button to create a new issue and a bottom sheet with issue details.
+ *
+ * @returns {JSX.Element}
+ */
 function MapPage() {
   const initPosition = [49.1871, -122.9241];
 
@@ -66,7 +74,7 @@ function MapPage() {
   const [mapCtx, setMapCtx] = useState(null);
 
   const [issues, setIssues] = useState([
-      //template
+    //template
     {
       id: 1,
       status: "In Progress",
@@ -87,7 +95,6 @@ function MapPage() {
       //   console.log(2, data);});
       // console.log(a);
       if (issues.ok) {
-
         let issues_json = await issues.json();
         console.log(issues_json);
         setIssues(issues_json);
@@ -129,11 +136,9 @@ function MapPage() {
   );
 
   const handleVote = async () => {
-
     console.log(selectedIssue);
 
     if (selectedIssue.user_voted) {
-
       // fetch(`/api/issues/vote/${selectedIssue.id}`, {
       //   method: "PUT",
       //   headers: { "Content-Type": "application/json" },
@@ -145,7 +150,6 @@ function MapPage() {
       //     console.log("vote failed");
       //   }
       // });
-
     } else {
       fetch("/api/issues/vote", {
         method: "POST",
@@ -153,18 +157,19 @@ function MapPage() {
         body: JSON.stringify({
           issueId: selectedIssue.id,
           vote: 1,
-        })
-      }).then(r => {
+        }),
+      }).then((r) => {
         if (!r.ok) {
           console.log("vote failed");
         }
       });
-
     }
 
     setSelectedIssue({
       ...selectedIssue,
-      vote_total: selectedIssue.user_voted ? Number(selectedIssue.vote_total) - 1 : Number(selectedIssue.vote_total) + 1,
+      vote_total: selectedIssue.user_voted
+        ? Number(selectedIssue.vote_total) - 1
+        : Number(selectedIssue.vote_total) + 1,
       user_voted: !selectedIssue.user_voted,
     });
 
@@ -201,7 +206,6 @@ function MapPage() {
   };
 
   const CreateIssue = ({ location }) => {
-
     const [formData, setFormData] = useState({
       type: "",
       title: "",

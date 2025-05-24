@@ -3,6 +3,10 @@ import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 import { CircleArrowUp, CircleArrowDown } from "lucide-react";
 
+/**
+ * Fetches reports from the server.
+ * @returns {Promise<Array<{id: number, title: string, type: string, status: string, creator_id: number, lat: number, lon: number}>>} List of reports
+ */
 async function getReports() {
   try {
     const reports = await (await fetch("/api/issues")).json();
@@ -14,6 +18,12 @@ async function getReports() {
   }
 }
 
+/**
+ * Updates a vote for a report with the given vote and reportId
+ * @param {number} vote the vote to be updated (1 or -1)
+ * @param {number} reportId the id of the report to vote on
+ * @returns {Promise<Response>} the response from the server
+ */
 async function changeVote(vote, reportId) {
   console.log("Change vote:", vote, reportId);
 
@@ -27,6 +37,12 @@ async function changeVote(vote, reportId) {
   console.log("Vote update response:", response);
 }
 
+/**
+ * Creates a vote for a report with the given vote and reportId
+ * @param {number} vote the vote to be created (1 or -1)
+ * @param {number} reportId the id of the report to vote on
+ * @returns {Promise<Response>} the response from the server
+ */
 async function createVote(vote, reportId) {
   console.log("Create vote:", vote, reportId);
 
@@ -40,6 +56,13 @@ async function createVote(vote, reportId) {
   console.log("Vote create response:", response);
 }
 
+/**
+ * The ReportsPage component displays a list of reports from the server, allowing the user to search
+ * and filter the reports. The user can also vote on each report, which updates the vote count and
+ * the user's vote status in real-time.
+ *
+ * @returns {JSX.Element} the rendered page
+ */
 export default function ReportsPage() {
   const [search, setSearch] = useState("");
   const [orderBy, setOrderBy] = useState("date");
@@ -49,9 +72,9 @@ export default function ReportsPage() {
   useEffect(() => {
     setTimeout(() => {
       getReports()
-          .then((reports) => setReports(reports))
-          .catch((error) => console.error(error));
-    }, 500)
+        .then((reports) => setReports(reports))
+        .catch((error) => console.error(error));
+    }, 500);
   }, [onUpdate]);
 
   return (
@@ -113,21 +136,19 @@ export default function ReportsPage() {
                             fill={report.user_voted === 1 ? "#73da88" : "none"}
                             onClick={() => {
                               report.user_voted != 0
-                                  ? changeVote(1, report.id)
-                                  : createVote(1, report.id)
+                                ? changeVote(1, report.id)
+                                : createVote(1, report.id);
                               setOnUpdate(!onUpdate);
-                            }
-                            }
+                            }}
                           />
                           <CircleArrowDown
                             fill={report.user_voted === -1 ? "#73da88" : "none"}
                             onClick={() => {
                               report.user_voted != 0
-                                  ? changeVote(-1, report.id)
-                                  : createVote(-1, report.id)
+                                ? changeVote(-1, report.id)
+                                : createVote(-1, report.id);
                               setOnUpdate(!onUpdate);
-                            }
-                            }
+                            }}
                           />
                         </div>
                         <span className="badge bg-info">Votes: {report.vote_total}</span>

@@ -12,6 +12,14 @@ const REQ_ISSUE_FIELDS = ["type", "title", "description", "x", "y", "creator_id"
 
 router.use(isAuthenticated);
 
+/**
+ * Validate an object containing a report against the required fields.
+ *
+ * @param {object} body - Object containing the report fields.
+ * @returns {array} - A 2-element array. The first element is an error message
+ *  if the input is invalid, or null if the input is valid. The second element is
+ *  an array of the values of the required fields.
+ */
 function validateFields(body) {
   const values = [];
   for (const field of REQ_ISSUE_FIELDS) {

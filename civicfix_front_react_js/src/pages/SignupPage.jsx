@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "@tanstack/react-router";
 import Footer from "../components/Footer";
 
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * SignupPage is a page that allows users to sign up for a CivicFix account.
+ * It contains a form with fields for username, email, and password.
+ * When the form is submitted, it sends a POST request to the server to create a new user account.
+ * If the request is successful, it navigates to the home page.
+ * Otherwise, it displays an error message.
+ *
+ * @returns A JSX element representing the SignupPage.
+ */
+/*******  5028e4a4-e335-4f63-8e77-f1dfa770dabf  *******/
 function SignupPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");

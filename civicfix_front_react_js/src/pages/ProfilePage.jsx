@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer";
 
+/**
+ * ProfilePage is a React component that renders a user's profile page.
+ * It displays the user's profile information including username, email,
+ * and user type. Users can edit their username, change their password,
+ * and log out. The component fetches user data from the backend when mounted
+ * and allows users to toggle edit modes for updating their profile details.
+ * Additionally, the component handles errors and loading states during data fetching.
+ */
+
 export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
