@@ -9,8 +9,8 @@ A map-based web app for citizens to report, track, and vote on local infrastruct
 ## 3. Technologies Used
 - **Frontend:** React.js, Tailwind CSS, Vite
 - **Backend:** Node.js, Express
-- **Database:** MongoDB Atlas
-- **Other Tools:** Aiven, GitHub, Netlify (frontend hosting), Render (backend hosting)
+- **Database:** Aiven
+- **Other Tools:** GitHub, Render (hosting)
 
 ## 4. Listing of File Contents
 - `civicfix_front_react_js/`: React frontend source
@@ -22,12 +22,11 @@ A map-based web app for citizens to report, track, and vote on local infrastruct
 ### a. Developer Setup – Required Installs:
 - **Language(s):** JavaScript (Node.js 18+)
 - **IDEs:** VS Code (recommended)
-- **Database(s):** MongoDB Atlas
+- **Database(s):** Aiven
 - **Other software:** Git, NPM
 
 ### b. Required 3rd-Party APIs/Frameworks:
 - Mapbox (for map display)
-- Mongoose (ORM for MongoDB)
 - Tailwind CSS (for UI)
 
 ### c. API Keys Needed:
