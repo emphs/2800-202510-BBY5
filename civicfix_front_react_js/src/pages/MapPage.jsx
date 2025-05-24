@@ -130,28 +130,29 @@ function MapPage() {
 
   const handleVote = async () => {
 
+    console.log(selectedIssue);
 
     if (selectedIssue.user_voted) {
 
-      fetch("/api/issues/vote", {
-        method: "POST",
+      fetch(`/api/issues/vote/${selectedIssue.id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          issueId: selectedIssue.id,
-          vote: 1,
+          vote: -1,
         })
       }).then(r => {
         if (!r.ok) {
           console.log("vote failed");
         }
       });
-    } else {
 
-      fetch(`/api/issues/vote/${selectedIssue.id}`, {
-        method: "PUT",
+    } else {
+      fetch("/api/issues/vote", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          vote: 0,
+          issueId: selectedIssue.id,
+          vote: 1,
         })
       }).then(r => {
         if (!r.ok) {

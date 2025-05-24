@@ -44,12 +44,15 @@ export default function ReportsPage() {
   const [search, setSearch] = useState("");
   const [orderBy, setOrderBy] = useState("date");
   const [reports, setReports] = useState([]);
+  const [onUpdate, setOnUpdate] = useState(false);
 
   useEffect(() => {
-    getReports()
-      .then((reports) => setReports(reports))
-      .catch((error) => console.error(error));
-  }, []);
+    setTimeout(() => {
+      getReports()
+          .then((reports) => setReports(reports))
+          .catch((error) => console.error(error));
+    }, 500)
+  }, [onUpdate]);
 
   return (
     <div className="d-flex flex-column min-vh-100">
@@ -108,18 +111,22 @@ export default function ReportsPage() {
                         <div className="flex flex-row gap-1 bg-gray-300 py-1 px-2 rounded-2xl">
                           <CircleArrowUp
                             fill={report.user_voted === 1 ? "#73da88" : "none"}
-                            onClick={() =>
+                            onClick={() => {
                               report.user_voted != 0
-                                ? changeVote(1, report.id)
-                                : createVote(1, report.id)
+                                  ? changeVote(1, report.id)
+                                  : createVote(1, report.id)
+                              setOnUpdate(!onUpdate);
+                            }
                             }
                           />
                           <CircleArrowDown
                             fill={report.user_voted === -1 ? "#73da88" : "none"}
-                            onClick={() =>
+                            onClick={() => {
                               report.user_voted != 0
-                                ? changeVote(-1, report.id)
-                                : createVote(-1, report.id)
+                                  ? changeVote(-1, report.id)
+                                  : createVote(-1, report.id)
+                              setOnUpdate(!onUpdate);
+                            }
                             }
                           />
                         </div>
