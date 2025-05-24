@@ -15,6 +15,8 @@ async function getReports() {
 }
 
 async function changeVote(vote, reportId) {
+  console.log("Change vote:", vote, reportId);
+
   const response = await fetch(`/api/issues/vote/${reportId}`, {
     method: "PUT",
     headers: {
@@ -26,6 +28,8 @@ async function changeVote(vote, reportId) {
 }
 
 async function createVote(vote, reportId) {
+  console.log("Create vote:", vote, reportId);
+
   const response = await fetch("/api/issues/vote", {
     method: "POST",
     headers: {
@@ -33,7 +37,7 @@ async function createVote(vote, reportId) {
     },
     body: JSON.stringify({ vote, reportId }),
   });
-  console.log("Vote update response:", response);
+  console.log("Vote create response:", response);
 }
 
 export default function ReportsPage() {
@@ -111,7 +115,7 @@ export default function ReportsPage() {
                             }
                           />
                           <CircleArrowDown
-                            fill={report.voted === -1 ? "#73da88" : "none"}
+                            fill={report.user_voted === -1 ? "#73da88" : "none"}
                             onClick={() =>
                               report.user_voted != 0
                                 ? changeVote(-1, report.id)

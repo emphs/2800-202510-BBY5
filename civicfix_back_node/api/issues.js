@@ -8,7 +8,7 @@ import { requireAdmin, isAuthenticated } from "./auth.js";
 const router = express.Router();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const REQ_ISSUE_FIELDS = ["type", "title", "description", "creator_id", "lat", "lon"];
+const REQ_ISSUE_FIELDS = ["type", "title", "description", "lat", "lon", "creator_id"];
 
 router.use(isAuthenticated);
 
@@ -111,7 +111,7 @@ router.get("/search", async (req, res) => {});
 
 router.post("/", async (req, res, next) => {
   const { body } = req;
-  const [error, values] = validateFields(body);
+  const [error, values] = validateFields({ ...body, creator_id: req.session.userId });
 
   if (error) return res.status(400).send(error);
 
@@ -120,8 +120,8 @@ router.post("/", async (req, res, next) => {
   try {
     await connection.beginTransaction();
     const [result] = await connection.execute(
-      `INSERT INTO issues (type, title, description, creator_id, location)
-       VALUES (?, ?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326));`,
+      `INSERT INTO issues (type, title, description, location, creator_id)
+       VALUES (?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326), ?);`,
       values
     );
     await connection.commit();
@@ -165,7 +165,8 @@ router.put("/:id", async (req, res, next) => {
     res.status(200).json({ message: "Issue updated", issueId: result.insertId });
   } catch (error) {
     await connection.rollback();
-    next(error);
+    console.log("Error updating issue:", error);
+    res.status(500).json({ message: "Error updating issue", error });
   } finally {
     connection.release();
   }
@@ -173,7 +174,7 @@ router.put("/:id", async (req, res, next) => {
 
 router.post("/vote", async (req, res) => {
   const { userId } = req.session;
-  const { issueId, vote } = req.body;
+  const { reportId: issueId, vote } = req.body;
 
   console.log("User ID:", userId);
   console.log("Issue ID:", issueId);
@@ -192,7 +193,8 @@ router.post("/vote", async (req, res) => {
     res.status(200).json({ message: "Vote created", voteId: result.insertId });
   } catch (error) {
     await connection.rollback();
-    next(error);
+    console.log("Error creating vote:", error);
+    res.status(500).json({ message: "Error creating vote", error });
   } finally {
     connection.release();
   }
@@ -223,7 +225,8 @@ router.put("/vote/:id", async (req, res) => {
     res.status(200).json({ message: "Vote updated", issueId: result.insertId });
   } catch (error) {
     await connection.rollback();
-    next(error);
+    console.log("Error updating vote:", error);
+    res.status(500).json({ message: "Error updating vote", error });
   } finally {
     connection.release();
   }
