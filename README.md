@@ -12,10 +12,8 @@ CivicFix is a community-driven issue reporting web app that lets residents submi
 
 - **Frontend:** React (ES6, Hooks), Leaflet for mapping
 - **Backend:** Node.js, Express
-- **Database:** MongoDB (Mongoose) or PostgreSQL
-- **Email Service:** SendGrid (nodemailer fallback)
-- **Auth:** JSON Web Tokens (JWT)
-- **Hosting & Deployment:** Vercel (frontend), Heroku or AWS (backend)
+- **Database:** Aiven MySQL
+- **Hosting & Deployment:** Render
 - **Other Tools:** Git, ESLint, Prettier, Postman, Jest/React Testing Library
 
 ## 4. Directory Structure (File Contents)
@@ -119,32 +117,28 @@ CivicFix is a community-driven issue reporting web app that lets residents submi
 
 ```
 
-> _Note: `passwords.txt` should contain admin/user login credentials and is not committed to the repo. Upload it separately to Dropbox in D2L._
-
 ## 5. Installation & Setup
 
 1. **Prerequisites**
 
    - Node.js v16+ and npm
-   - MongoDB (local or Atlas) or PostgreSQL
    - IDE (e.g., VS Code)
    - Git CLI
 
 2. **Clone the Repo**
 
    ```bash
-   git clone https://github.com/your-org/CivicFix.git
-   cd CivicFix
+   git clone https://github.com/emphs/2800-202510-BBY5
    ```
 
 3. **Backend Setup**
 
    ```bash
-   cd server
+   cd civicfix_back_node
    npm install
-   cp ../.env.example .env
-   # Edit .env with real values:
-   # MONGODB_URI, PORT, JWT_SECRET, SENDGRID_API_KEY, EMAIL_SERVICE
+   npm run dev
+   cd civicfix_front_react_js
+   npm install
    npm run dev
    ```
 
@@ -179,8 +173,7 @@ View our full testing history and contribute:
 - **Leaflet:** Open-source mapping library (BSD-2-Clause)
 - **React:** UI library (MIT)
 - **Express:** Web framework (MIT)
-- **MongoDB:** NoSQL database (SSPL)
-- **SendGrid:** Email API (proprietary)
+- **Aiven MySQL:** MySQL database
 - **Jest:** Testing framework (MIT)
 
 ## 8. AI & API Usage
