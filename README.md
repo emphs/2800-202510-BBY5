@@ -184,6 +184,4 @@ View our full testing history and contribute:
 
 ## 9. Contact Information
 
-- **Maintainer:** [yourname@organization.org](mailto:yourname@organization.org)
-- **GitHub Issues:** [https://github.com/your-org/CivicFix/issues](https://github.com/your-org/CivicFix/issues)
-- **Project Wiki:** [https://github.com/your-org/CivicFix/wiki](https://github.com/your-org/CivicFix/wiki)
+- Jason Firkus (jfirkus@my.bcit.ca)
