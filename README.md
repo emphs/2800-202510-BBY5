@@ -1,49 +1,187 @@
-#  CivicFix - 2800-202510-BBY5
+# CivicFix
 
 ## 1. Project Title
-**CivicFix – Community-Powered Infrastructure Reporting**
 
-## 2. Project Description (One-Sentence Pitch)
-A map-based web app for citizens to report, track, and vote on local infrastructure issues like potholes, graffiti, and streetlight outages.
+**CivicFix**
+
+## 2. Project Description (One Sentence Pitch)
+
+CivicFix is a community-driven issue reporting web app that lets residents submit and vote on local civic issues to help authorities prioritize fixes.
 
 ## 3. Technologies Used
-- **Frontend:** React.js, Tailwind CSS, Vite
+
+- **Frontend:** React (ES6, Hooks), Leaflet for mapping
 - **Backend:** Node.js, Express
-- **Database:** Aiven
-- **Other Tools:** GitHub, Render (hosting)
+- **Database:** Aiven MySQL
+- **Hosting & Deployment:** Render
+- **Other Tools:** Git, ESLint, Prettier, Postman, Jest/React Testing Library
 
-## 4. Listing of File Contents
-- `civicfix_front_react_js/`: React frontend source
-- `civicfix_back_node/`: Express backend API and MongoDB models
-- `.env.example`: Sample environment variable structure
+## 4. Directory Structure (File Contents)
 
-## 5. How to Install or Run the Project
+```bash
+# From project root:
+2800-202510-BBY5/
+├─ .github/
+│  └─ workflows/
+│     └─ nightly_unit.yml
+├─ civicfix_back_node/
+│  ├─ api/
+│  │  ├─ auth.js
+│  │  ├─ index.js
+│  │  ├─ issues.js
+│  │  └─ users.js
+│  ├─ bruno tests/
+│  │  ├─ bruno_tests_my_issues/
+│  │  │  ├─ bruno.json
+│  │  │  ├─ Issue id-1.bru
+│  │  │  ├─ Issue.bru
+│  │  │  └─ User Issues.bru
+│  │  ├─ CivixFix - Gen Description/
+│  │  │  ├─ bruno.json
+│  │  │  └─ gen-description STANLEY PARK.bru
+│  │  └─ users/
+│  │     └─ bruno.json
+│  ├─ public/
+│  │  └─ placeholder.png
+│  ├─ routes/
+│  │  └─ reports.js
+│  ├─ .env
+│  ├─ app.js
+│  ├─ app.js.orig
+│  ├─ ca.pem
+│  ├─ db.js
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ tables.sql
+│  └─ yarn.lock
+├─ civicfix_front_react_js/
+│  ├─ public/
+│  │  ├─ logos/
+│  │  │  ├─ civicfix_logo1.png
+│  │  │  ├─ civicfix_logo2.png
+│  │  │  ├─ civicfix_logo3.png
+│  │  │  └─ civicfix_logo4.png
+│  │  ├─ about_us.html
+│  │  └─ vite.svg
+│  ├─ src/
+│  │  ├─ assets/
+│  │  │  └─ react.svg
+│  │  ├─ components/
+│  │  │  ├─ styles/
+│  │  │  │  └─ Nav.css
+│  │  │  ├─ Footer.jsx
+│  │  │  ├─ LocateButton.jsx
+│  │  │  ├─ MapDisplay.jsx
+│  │  │  └─ Nav.jsx
+│  │  ├─ hooks/
+│  │  │  ├─ useGeolocation.js
+│  │  │  └─ useSocket.jsx
+│  │  ├─ pages/
+│  │  │  ├─ CreateIssue/
+│  │  │  │  ├─ CreateIssue.css
+│  │  │  │  └─ CreateIssue.jsx
+│  │  │  ├─ AdminPage.jsx
+│  │  │  ├─ HomePage.jsx
+│  │  │  ├─ IndexPage.jsx
+│  │  │  ├─ LoginPage.jsx
+│  │  │  ├─ MapPage.jsx
+│  │  │  ├─ ProfilePage.jsx
+│  │  │  ├─ ReportsPage.jsx
+│  │  │  └─ SignupPage.jsx
+│  │  ├─ App.css
+│  │  ├─ App.jsx
+│  │  ├─ App.test.jsx
+│  │  ├─ index.css
+│  │  ├─ main.jsx
+│  │  ├─ MainMap.jsx
+│  │  └─ router.jsx
+│  ├─ .gitignore
+│  ├─ app.js
+│  ├─ eslint.config.js
+│  ├─ index.html
+│  ├─ jest.config.js
+│  ├─ package-lock.json
+│  ├─ package.json
+│  ├─ README.md
+│  ├─ vite.config.js
+│  ├─ vite.config.js.orig
+│  └─ yarn.lock
+├─ crates/
+│  └─ openstreetmap_test/
+│     └─ a.sh
+├─ .gitignore
+├─ package-lock.json
+├─ package.json
+├─ README.md
+└─ yarn.lock
 
-### a. Developer Setup – Required Installs:
-- **Language(s):** JavaScript (Node.js 18+)
-- **IDEs:** VS Code (recommended)
-- **Database(s):** Aiven
-- **Other software:** Git, NPM
+```
 
-### b. Required 3rd-Party APIs/Frameworks:
-- Mapbox (for map display)
-- Tailwind CSS (for UI)
+## 5. Installation & Setup
 
-### c. API Keys Needed:
-- `VITE_MAPBOX_API_KEY` (frontend)
-- `MONGO_URI` (backend)
-###7. Credits, References, and Licenses
-Built by COMP 2800 BBY5 Team
+1. **Prerequisites**
 
-MIT license
+   - Node.js v16+ and npm
+   - IDE (e.g., VS Code)
+   - Git CLI
 
-###8. AI/API Use Details
+2. **Clone the Repo**
 
-Mapbox: Used to generate and interact with map components
+   ```bash
+   git clone https://github.com/emphs/2800-202510-BBY5
+   ```
 
-Aiven DB: Managed cloud NoSQL DB storage and access
+3. **Backend Setup**
 
-Vite + Tailwind: Used for quick and responsive front-end setup
+   ```bash
+   cd civicfix_back_node
+   npm install
+   npm run dev
+   cd civicfix_front_react_js
+   npm install
+   npm run dev
+   ```
 
-###9. Contact Information
-GitHub Repo: https://github.com/emphs/2800-202510-BBY5
+4. **Frontend Setup**
+
+   ```bash
+   cd ../client
+   npm install
+   cp .env.example .env
+   # Edit .env with REACT_APP_MAPBOX_TOKEN or MAPBOX_TOKEN
+   npm start
+   ```
+
+5. **Testing Plan**
+
+View our full testing history and contribute:
+[https://github.com/your-org/CivicFix/blob/main/server/tests/testing_plan.md](https://github.com/your-org/CivicFix/blob/main/server/tests/testing_plan.md)
+
+## 6. How to Use (Features)
+
+1. **Sign Up / Sign In:** Create an account or login with JWT-secured credentials.
+2. **Report Issue:** Fill out title, description, category, and drop a pin on the map.
+3. **Browse Map:** View all reports with interactive markers, clustered at zoomed out levels.
+4. **Upvote / Downvote:** Click arrows on each report card to cast your vote.
+5. **Filter & Search:** Use the sidebar to filter by category or search by street name.
+6. **Issue Details:** Click a marker or list item to see full details, comments, and vote history.
+7. **Edit / Delete:** Modify or remove your own reports (confirmation required).
+8. **Notifications:** Receive email confirmation after successful report submission.
+
+## 7. Credits, References & Licenses
+
+- **Leaflet:** Open-source mapping library (BSD-2-Clause)
+- **React:** UI library (MIT)
+- **Express:** Web framework (MIT)
+- **Aiven MySQL:** MySQL database
+- **Jest:** Testing framework (MIT)
+
+## 8. AI & API Usage
+
+- **ChatGPT (OpenAI API):** Generated initial README draft and sample test descriptions.
+- **Mapbox API:** Provides custom map tiles and geocoding on the frontend.
+- **SendGrid API:** Sends transactional confirmation emails via server-side integration.
+
+## 9. Contact Information
+
+- Jason Firkus (jfirkus@my.bcit.ca)
