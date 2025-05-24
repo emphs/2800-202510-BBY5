@@ -32,3 +32,18 @@ A map-based web app for citizens to report, track, and vote on local infrastruct
 ### c. API Keys Needed:
 - `VITE_MAPBOX_API_KEY` (frontend)
 - `MONGO_URI` (backend)
+###7. Credits, References, and Licenses
+Built by COMP 2800 BBY5 Team
+
+MIT license
+
+###8. AI/API Use Details
+
+Mapbox: Used to generate and interact with map components
+
+Aiven DB: Managed cloud NoSQL DB storage and access
+
+Vite + Tailwind: Used for quick and responsive front-end setup
+
+###9. Contact Information
+GitHub Repo: https://github.com/emphs/2800-202510-BBY5
