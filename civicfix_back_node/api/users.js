@@ -1,7 +1,7 @@
 "use strict";
 
 import express from "express";
-import { requireAdmin } from "./auth.js";
+import { requireAdmin, isAuthenticated } from "./auth.js";
 import pool from "../db.js";
 
 const router = express.Router();
@@ -16,32 +16,33 @@ router.get("/", requireAdmin, async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  const { email, password } = req.body;
+router.post("/change-username", isAuthenticated, async (req, res) => {
+  const { username } = req.body;
+  if (!username || typeof username !== "string" || username.trim() === "") {
+    return res.status(400).json({ message: "Username is required" });
+  }
 
   try {
-    const [result] = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-
-    if (result.length === 0) {
-      console.log(`Failed login: email not found (${email})`);
-      return res.status(401).json({ message: "Invalid email or password" });
+    // Check if username is already taken by another user
+    const [check] = await pool.query("SELECT id FROM users WHERE username = ? AND id <> ?", [
+      username,
+      req.session.userId,
+    ]);
+    if (check.length > 0) {
+      return res.status(409).json({ message: "Username already taken" });
     }
-
-    const user = result[0];
-    const match = await bcrypt.compare(password, user.password);
-
-    if (!match) {
-      console.log(`Failed login: incorrect password for email (${email})`);
-      return res.status(401).json({ message: "Invalid email or password" });
+    const [result] = await pool.query("UPDATE users SET username = ? WHERE id = ?", [
+      username,
+      req.session.userId,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found" });
     }
-
-    req.session.userId = user.id;
-    req.session.user_type = user.user_type;
-    req.session.email = user.email;
-    res.json({ message: "Login successful" });
+    req.session.username = username;
+    res.json({ message: "Profile updated", username });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error("Error in /api/modify-profile:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

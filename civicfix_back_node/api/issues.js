@@ -3,13 +3,23 @@
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import pool from "../db.js";
-import { requireAdmin } from "./auth.js";
+import { requireAdmin, isAuthenticated } from "./auth.js";
 
 const router = express.Router();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const REQ_ISSUE_FIELDS = ["type", "title", "description", "creator_id", "lat", "lon"];
+const REQ_ISSUE_FIELDS = ["type", "title", "description", "x", "y", "creator_id"];
 
+router.use(isAuthenticated);
+
+/**
+ * Validate an object containing a report against the required fields.
+ *
+ * @param {object} body - Object containing the report fields.
+ * @returns {array} - A 2-element array. The first element is an error message
+ *  if the input is invalid, or null if the input is valid. The second element is
+ *  an array of the values of the required fields.
+ */
 function validateFields(body) {
   const values = [];
   for (const field of REQ_ISSUE_FIELDS) {
@@ -21,15 +31,60 @@ function validateFields(body) {
   return [null, values];
 }
 
-router.get("/", requireAdmin, async (req, res) => {
+router.get("/admin", requireAdmin, async (req, res) => {
   try {
-    const [rows] = await req.mysqlPool.query(
+    const [rows] = await pool.query(
       "SELECT id, title, type, status, creator_id FROM issues ORDER BY title ASC"
     );
     res.json(rows);
   } catch (err) {
     console.error("Admin get reports error:", err);
     res.status(500).json({ message: "Failed to fetch reports" });
+  }
+});
+
+router.get("/get_issues", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM issues ORDER BY title ASC");
+    res.json(rows);
+  } catch (err) {
+    console.error("get reports error:", err);
+    res.status(500).json({ message: "Failed to fetch reports" });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const [issues] = await pool.query(
+      `
+      SELECT 
+        i.id,
+        i.title,
+        i.type,
+        i.description,
+        i.date_created,
+        u.username,
+        i.location,
+        i.status,
+        COALESCE(SUM(v.vote),0) AS vote_total,
+        COALESCE(MAX(CASE WHEN v.user_id = ? THEN v.vote END), 0) AS user_voted
+      FROM
+          issues i
+              INNER JOIN
+          users u ON i.creator_id = u.id
+              LEFT JOIN
+          votes v ON i.id = v.issue_id
+      GROUP BY
+        i.id, i.title, i.type, i.description,
+        i.date_created, u.username, i.location, i.status;
+      `,
+      [req.session.userId]
+    );
+
+    res.status(200).json(issues);
+  } catch (error) {
+    console.log("Error fetching issues", error);
+    res.status(500).json({ message: "Error fetching issues", error });
   }
 });
 
@@ -50,11 +105,8 @@ router.get("/gen-description", async (req, res, next) => {
 
 router.get("/user", async (req, res, next) => {
   try {
-    if (!req.session || !req.session.userId) {
-      return res.status(401).json({ message: "Not logged in" });
-    }
     const [issues] = await pool.query(
-      "SELECT id, title, type, status FROM issues WHERE user = ?;",
+      "SELECT id, title, type, status FROM issues WHERE creator_id = ?;",
       [req.session.userId]
     );
     res.status(200).json(issues);
@@ -63,9 +115,11 @@ router.get("/user", async (req, res, next) => {
   }
 });
 
-router.post("/issue", async (req, res, next) => {
+router.get("/search", async (req, res) => {});
+
+router.post("/", async (req, res, next) => {
   const { body } = req;
-  const [error, values] = validateFields(body);
+  const [error, values] = validateFields({ ...body, creator_id: req.session.userId });
 
   if (error) return res.status(400).send(error);
 
@@ -74,8 +128,8 @@ router.post("/issue", async (req, res, next) => {
   try {
     await connection.beginTransaction();
     const [result] = await connection.execute(
-      `INSERT INTO issues (type, title, description, creator_id, location)
-       VALUES (?, ?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326));`,
+      `INSERT INTO issues (type, title, description, location, creator_id)
+       VALUES (?, ?, ?, ST_GeomFromText(CONCAT('POINT(', ?, ' ', ?, ')'), 4326), ?);`,
       values
     );
     await connection.commit();
@@ -89,7 +143,7 @@ router.post("/issue", async (req, res, next) => {
   }
 });
 
-router.put("/issue/:id", async (req, res, next) => {
+router.put("/:id", async (req, res, next) => {
   const { body } = req;
   const issueId = req.params.id;
   const [error, values] = validateFields(body);
@@ -119,7 +173,68 @@ router.put("/issue/:id", async (req, res, next) => {
     res.status(200).json({ message: "Issue updated", issueId: result.insertId });
   } catch (error) {
     await connection.rollback();
-    next(error);
+    console.log("Error updating issue:", error);
+    res.status(500).json({ message: "Error updating issue", error });
+  } finally {
+    connection.release();
+  }
+});
+
+router.post("/vote", async (req, res) => {
+  const { userId } = req.session;
+  const { reportId: issueId, vote } = req.body;
+
+  console.log("User ID:", userId);
+  console.log("Issue ID:", issueId);
+  console.log("Vote:", vote);
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const [result] = await connection.execute(
+      "INSERT INTO votes (user_id, issue_id, vote) VALUES (?, ?, ?)",
+      [userId, issueId, vote]
+    );
+    await connection.commit();
+
+    res.status(200).json({ message: "Vote created", voteId: result.insertId });
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error creating vote:", error);
+    res.status(500).json({ message: "Error creating vote", error });
+  } finally {
+    connection.release();
+  }
+});
+
+router.put("/vote/:id", async (req, res) => {
+  const { userId } = req.session;
+  const { id: issueId } = req.params;
+  const { vote } = req.body;
+
+  console.log("User ID:", userId);
+  console.log("Issue ID:", issueId);
+  console.log("Vote:", vote);
+
+  const connection = await pool.getConnection();
+
+  try {
+    await connection.beginTransaction();
+    const [result] = await connection.execute(
+      `UPDATE votes SET vote = ? WHERE user_id = ? AND issue_id = ?`,
+      [req.body.vote, req.session.userId, req.params.id]
+    );
+    await connection.commit();
+    if (result.affectedRows == 0) {
+      return res.status(404).json({ message: "Issue not found" });
+    }
+
+    res.status(200).json({ message: "Vote updated", issueId: result.insertId });
+  } catch (error) {
+    await connection.rollback();
+    console.log("Error updating vote:", error);
+    res.status(500).json({ message: "Error updating vote", error });
   } finally {
     connection.release();
   }

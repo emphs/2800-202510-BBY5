@@ -6,7 +6,6 @@ import session from "express-session";
 import "dotenv/config";
 import apiRouter from "./api/index.js";
 
-
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled Rejection:", reason);
 });
@@ -48,43 +47,20 @@ app.use(
 );
 
 app.use(json());
+app.use(expressStatic(join(__dirname, "../civicfix_front_react_js/dist")));
+app.use(express.urlencoded({ extended: false }));
 app.use(expressStatic(staticPath));
-
-app.use("/api", apiRouter);
 
 app.use((req, res, next) => {
   console.log(`[${req.method}] ${req.url}`);
   next();
 });
 
-// app.get('/api/me', async (req, res) => {
-//   if (
-//     !req.session ||
-//     !req.session.userId ||
-//     !req.session.username ||
-//     !req.session.email ||
-//     !req.session.userType
-//   ) {
-//     return res.status(401).json({ message: 'Not logged in or session incomplete' });
-//   }
-//   // Fetch latest user info from MySQL
-//   try {
-//     const [rows] = await mysqlPool.query(
-//       'SELECT id, username, email, userType FROM users WHERE id = ?',
-//       [req.session.userId]
-//     );
-//     if (!rows.length) return res.status(404).json({ message: 'User not found' });
-//     const user = rows[0];
-//     res.json({
-//       userId: user.id,
-//       userType: user.userType,
-//       email: user.email,
-//       username: user.username
-//     });
-//   } catch (err) {
-//     res.status(500).json({ message: 'Failed to fetch user info' });
-//   }
-// });
+app.use("/api", apiRouter);
+
+app.get("/", (req, res) => {
+  res.status(200).sendFile(join(__dirname, "../civicfix_front_react_js/dist", "index.html"));
+});
 
 // --- SPA Fallback for Frontend Routing ---
 app.use((req, res, next) => {
