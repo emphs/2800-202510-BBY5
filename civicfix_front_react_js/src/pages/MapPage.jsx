@@ -177,8 +177,8 @@ function MapPage() {
       if (issue.id === selectedIssue.id) {
         return {
           ...issue,
-          vote_total: issue.user_voted ? issue.vote_total - 1 : issue.vote_total + 1,
-          user_voted: !issue.user_voted,
+          vote_total: issue.user_voted ? issue.vote_total : issue.vote_total + 1,
+          user_voted: true,
         };
       }
       return issue;
