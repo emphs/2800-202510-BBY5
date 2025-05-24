@@ -178,9 +178,8 @@ View our full testing history and contribute:
 
 ## 8. AI & API Usage
 
-- **ChatGPT (OpenAI API):** Generated initial README draft and sample test descriptions.
+- **ChatGPT (OpenAI API):** Generated initial README draft, JSDoc, used as knowledgebase.
 - **Mapbox API:** Provides custom map tiles and geocoding on the frontend.
-- **SendGrid API:** Sends transactional confirmation emails via server-side integration.
 
 ## 9. Contact Information
 
