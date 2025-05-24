@@ -151,26 +151,31 @@ function MapPage() {
       //   }
       // });
     } else {
-      fetch("/api/issues/vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          issueId: selectedIssue.id,
-          vote: 1,
-        }),
-      }).then((r) => {
-        if (!r.ok) {
-          console.log("vote failed");
-        }
-      });
+      try {
+
+        fetch("/api/issues/vote", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            issueId: selectedIssue.id,
+            vote: 1,
+          }),
+        }).then((r) => {
+          if (!r.ok) {
+            console.log("vote failed");
+          }
+        });
+      } catch (error) {
+        console.error("exist");
+      }
     }
 
     setSelectedIssue({
       ...selectedIssue,
       vote_total: selectedIssue.user_voted
-        ? Number(selectedIssue.vote_total) - 1
+        ? Number(selectedIssue.vote_total)
         : Number(selectedIssue.vote_total) + 1,
-      user_voted: !selectedIssue.user_voted,
+      user_voted: true,
     });
 
     const updatedIssues = issues.map((issue) => {
