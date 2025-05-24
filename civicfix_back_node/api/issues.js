@@ -8,7 +8,7 @@ import { requireAdmin, isAuthenticated } from "./auth.js";
 const router = express.Router();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const REQ_ISSUE_FIELDS = ["type", "title", "description", "lat", "lon", "creator_id"];
+const REQ_ISSUE_FIELDS = ["type", "title", "description", "x", "y", "creator_id"];
 
 router.use(isAuthenticated);
 
