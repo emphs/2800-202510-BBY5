@@ -134,17 +134,17 @@ function MapPage() {
 
     if (selectedIssue.user_voted) {
 
-      fetch(`/api/issues/vote/${selectedIssue.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          vote: -1,
-        })
-      }).then(r => {
-        if (!r.ok) {
-          console.log("vote failed");
-        }
-      });
+      // fetch(`/api/issues/vote/${selectedIssue.id}`, {
+      //   method: "PUT",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     vote: -1,
+      //   })
+      // }).then(r => {
+      //   if (!r.ok) {
+      //     console.log("vote failed");
+      //   }
+      // });
 
     } else {
       fetch("/api/issues/vote", {
